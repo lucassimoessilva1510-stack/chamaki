@@ -1,0 +1,74 @@
+import { mutation } from "./_generated/server";
+
+async function hashPassword(password: string): Promise<string> {
+  const encoder = new TextEncoder();
+  const data = encoder.encode(password + "__chamaki_salt__");
+  const hashBuffer = await crypto.subtle.digest("SHA-256", data);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  return hashArray.map((b) => b.toString(16).padStart(2, "0")).join("");
+}
+
+export const seedData = mutation({
+  args: {},
+  handler: async (ctx) => {
+    // Check if already seeded
+    const existingCounter = await ctx.db
+      .query("counter")
+      .withIndex("by_name", (q) => q.eq("name", "tickets"))
+      .first();
+    if (existingCounter) {
+      return "Dados ja foram inseridos anteriormente.";
+    }
+
+    // ── Seed tech users ──
+    const techs = [
+      { name: "Icaro Rafael Borges", email: "icaro@empresa.com", dept: "TI", cargo: "Product Owner" },
+      { name: "Lucas Simoes Silva", email: "lucas@empresa.com", dept: "TI", cargo: "Desenvolvedor" },
+      { name: "Maria Eduarda F. da F. Silva", email: "maria@empresa.com", dept: "TI", cargo: "Scrum Master" },
+      { name: "Matheus Polini", email: "matheus@empresa.com", dept: "TI", cargo: "Desenvolvedor / DBA" },
+    ];
+    const defaultHash = await hashPassword("123456");
+
+    for (const t of techs) {
+      await ctx.db.insert("users", { ...t, passwordHash: defaultHash, type: "tec" as const });
+    }
+
+    // ── Seed client users ──
+    const clients = [
+      { name: "Ana Costa", email: "ana@gmail.com" },
+      { name: "Carlos Mendes", email: "carlos@outlook.com" },
+      { name: "Fernanda Lima", email: "fernanda@gmail.com" },
+      { name: "Roberto Alves", email: "roberto@hotmail.com" },
+      { name: "Juliana Martins", email: "juliana@gmail.com" },
+      { name: "Pedro Santos", email: "pedro@yahoo.com" },
+    ];
+    for (const c of clients) {
+      await ctx.db.insert("users", { ...c, passwordHash: defaultHash, type: "cli" as const });
+    }
+
+    // ── Seed tickets ──
+    const tickets = [
+      { ticketId:"CHK-001", title:"Impressora HP LaserJet nao liga — 3o andar", category:"Impressora", priority:"high", status:"Aberto", authorName:"Ana Costa", authorEmail:"ana@gmail.com", timeline:[{time:"15/10 09:30",message:"Chamado registrado por Ana Costa — impressora sem resposta ao ligar. Modelo: HP LaserJet Pro M404dn.",type:"file"}] },
+      { ticketId:"CHK-002", title:"VPN corporativa desconecta apos 10 minutos", category:"Rede / VPN", priority:"crit", status:"Em Atendimento", authorName:"Carlos Mendes", authorEmail:"carlos@outlook.com", assigneeName:"Matheus Polini", timeline:[{time:"16/10 14:00",message:"Chamado registrado por Carlos Mendes — VPN desconecta automaticamente.",type:"file"},{time:"16/10 15:20",message:"Chamado assumido por Matheus Polini.",type:"wrench"},{time:"17/10 10:00",message:"Matheus Polini: Verificando configuracoes de firewall corporativo e logs do servidor VPN.",type:"msg"}] },
+      { ticketId:"CHK-003", title:"Monitor externo sem sinal — cabo HDMI", category:"Hardware", priority:"med", status:"Resolvido", authorName:"Fernanda Lima", authorEmail:"fernanda@gmail.com", assigneeName:"Lucas Simoes Silva", timeline:[{time:"14/10 08:45",message:"Chamado registrado por Fernanda Lima.",type:"file"},{time:"14/10 10:00",message:"Chamado assumido por Lucas Simoes Silva.",type:"wrench"},{time:"14/10 11:30",message:"Lucas Simoes: Cabo HDMI substituido. Monitor funcionando.",type:"msg"},{time:"14/10 11:45",message:"Chamado resolvido com sucesso.",type:"check"}] },
+      { ticketId:"CHK-004", title:"Acesso negado ao sistema ERP — modulo financeiro", category:"Acesso / Permissoes", priority:"high", status:"Aberto", authorName:"Roberto Alves", authorEmail:"roberto@hotmail.com", timeline:[{time:"18/10 07:50",message:"Chamado registrado — nao consegue acessar o modulo de contas a pagar no ERP.",type:"file"}] },
+      { ticketId:"CHK-005", title:"Licenca Office 365 nao ativa no notebook", category:"Software", priority:"med", status:"Em Atendimento", authorName:"Juliana Martins", authorEmail:"juliana@gmail.com", assigneeName:"Maria Eduarda F. da F. Silva", timeline:[{time:"17/10 13:00",message:"Chamado registrado por Juliana Martins.",type:"file"},{time:"17/10 16:00",message:"Chamado assumido por Maria Eduarda F. da F. Silva.",type:"wrench"}] },
+      { ticketId:"CHK-006", title:"Teclado USB — teclas Enter e Espaco falhando", category:"Hardware", priority:"low", status:"Aberto", authorName:"Pedro Santos", authorEmail:"pedro@yahoo.com", timeline:[{time:"19/10 11:00",message:"Chamado registrado — teclado com teclas intermitentes.",type:"file"}] },
+      { ticketId:"CHK-007", title:"E-mail nao recebe anexos acima de 5 MB", category:"E-mail", priority:"med", status:"Aberto", authorName:"Ana Costa", authorEmail:"ana@gmail.com", timeline:[{time:"20/10 08:15",message:"Chamado registrado — anexos grandes sao rejeitados.",type:"file"}] },
+      { ticketId:"CHK-008", title:"Sistema de ponto eletronico fora do ar", category:"Sistema Interno", priority:"crit", status:"Em Atendimento", authorName:"Roberto Alves", authorEmail:"roberto@hotmail.com", assigneeName:"Icaro Rafael Borges", timeline:[{time:"20/10 09:00",message:"URGENTE: Sistema de ponto eletronico inacessivel.",type:"alert"},{time:"20/10 09:15",message:"Chamado assumido por Icaro Rafael Borges — prioridade maxima.",type:"wrench"},{time:"20/10 10:30",message:"Icaro: Servidor reiniciado. Monitorando estabilidade.",type:"msg"}] },
+      { ticketId:"CHK-009", title:"Setup completo de notebook novo — SO e aplicativos", category:"Software", priority:"low", status:"Resolvido", authorName:"Juliana Martins", authorEmail:"juliana@gmail.com", assigneeName:"Matheus Polini", timeline:[{time:"12/10 14:00",message:"Chamado registrado — notebook para onboarding.",type:"file"},{time:"12/10 15:00",message:"Chamado assumido por Matheus Polini.",type:"wrench"},{time:"13/10 09:00",message:"Matheus: SO, Office, antivirus e VPN instalados.",type:"msg"},{time:"13/10 09:30",message:"Chamado resolvido com sucesso.",type:"check"}] },
+      { ticketId:"CHK-010", title:"Wi-Fi com sinal fraco no 2o andar — video trava", category:"Rede / VPN", priority:"med", status:"Aberto", authorName:"Fernanda Lima", authorEmail:"fernanda@gmail.com", timeline:[{time:"21/10 10:30",message:"Chamado registrado — reunioes em video travando.",type:"file"}] },
+      { ticketId:"CHK-011", title:"Projetor da sala de reunioes nao conecta via HDMI", category:"Hardware", priority:"med", status:"Resolvido", authorName:"Carlos Mendes", authorEmail:"carlos@outlook.com", assigneeName:"Lucas Simoes Silva", timeline:[{time:"10/10 16:00",message:"Chamado registrado por Carlos Mendes.",type:"file"},{time:"10/10 16:30",message:"Chamado assumido por Lucas Simoes Silva.",type:"wrench"},{time:"10/10 17:15",message:"Lucas: Adaptador substituido. Resolvido.",type:"check"}] },
+      { ticketId:"CHK-012", title:"Criacao de conta AD para novo colaborador — inicio 24/10", category:"Acesso / Permissoes", priority:"high", status:"Aberto", authorName:"Ana Costa", authorEmail:"ana@gmail.com", timeline:[{time:"22/10 08:00",message:"Chamado registrado — acesso ao AD necessario ate 24/10.",type:"file"}] },
+    ];
+
+    for (const t of tickets) {
+      await ctx.db.insert("tickets", t as any);
+    }
+
+    // Set counter
+    await ctx.db.insert("counter", { name: "tickets", value: 12 });
+
+    return "Dados iniciais inseridos com sucesso! 4 tecnicos, 6 colaboradores, 12 chamados.";
+  },
+});
