@@ -261,6 +261,14 @@ function renderAuthTec() {
   document.getElementById("tBack").onclick = () => { showScreen("landing"); renderLanding(); };
 }
 
+function errorMessage(error) {
+  // ConvexError.data contains the public message; .message includes a stack trace.
+  if (typeof error?.data === "string" && error.data.trim()) return error.data;
+  const message = error?.message;
+  if (typeof message === "string" && message && !message.includes("[CONVEX")) return message;
+  return "Nao foi possivel concluir a operacao. Tente novamente em instantes.";
+}
+
 function showError(elId, msg) {
   const el = document.getElementById(elId);
   if (el) { el.textContent = msg; el.style.display = "block"; }
@@ -294,7 +302,7 @@ async function handleLoginCli() {
     saveSession();
     enterApp();
   } catch (err) {
-    showError("cAuthError", err.message);
+    showError("cAuthError", errorMessage(err));
   }
 }
 
@@ -325,7 +333,7 @@ async function handleRegCli() {
     toast("Conta criada com sucesso!", "success");
     enterApp();
   } catch (err) {
-    showError("cAuthError", err.message);
+    showError("cAuthError", errorMessage(err));
   }
 }
 
@@ -352,7 +360,7 @@ async function handleLoginTec() {
     saveSession();
     enterApp();
   } catch (err) {
-    showError("tAuthError", err.message);
+    showError("tAuthError", errorMessage(err));
   }
 }
 
@@ -386,7 +394,7 @@ async function handleRegTec() {
     toast("Conta técnica criada com sucesso!", "success");
     enterApp();
   } catch (err) {
-    showError("tAuthError", err.message);
+    showError("tAuthError", errorMessage(err));
   }
 }
 
@@ -919,7 +927,7 @@ function bindPageEvents() {
 
         toast(`Chamado ${ticketId} assumido!`, "success");
         syncTickets();
-      } catch (err) { toast(err.message, "error"); }
+      } catch (err) { toast(errorMessage(err), "error"); }
     };
   });
 
@@ -941,7 +949,7 @@ function bindPageEvents() {
 
         toast(`Chamado ${ticketId} resolvido com sucesso!`, "success");
         syncTickets();
-      } catch (err) { toast(err.message, "error"); }
+      } catch (err) { toast(errorMessage(err), "error"); }
     };
   });
 
@@ -971,7 +979,7 @@ function bindPageEvents() {
         toast("Resposta enviada!", "success");
         currentReplyPhoto = null;
         syncTickets();
-      } catch (err) { toast(err.message, "error"); }
+      } catch (err) { toast(errorMessage(err), "error"); }
     };
   });
 
@@ -1000,7 +1008,7 @@ function bindPageEvents() {
           goPage(currentUser.type === "cli" ? "ctickets" : "tmanage");
         }
         syncTickets();
-      } catch (err) { toast(err.message, "error"); }
+      } catch (err) { toast(errorMessage(err), "error"); }
     };
   });
 
@@ -1099,7 +1107,7 @@ async function uploadProfilePhoto(input) {
       saveSession();
       toast("Foto de perfil atualizada!", "success");
       render();
-    } catch (err) { toast(err.message, "error"); }
+    } catch (err) { toast(errorMessage(err), "error"); }
   };
   reader.readAsDataURL(file);
 }
@@ -1140,7 +1148,7 @@ async function createTicket() {
     await syncTickets();
     goPage(currentUser.type === "cli" ? "ctickets" : "tall");
   } catch (err) {
-    toast(err.message, "error");
+    toast(errorMessage(err), "error");
   }
 }
 
@@ -1171,7 +1179,7 @@ async function saveProfile() {
     saveSession();
     toast("Perfil atualizado com sucesso!", "success");
     render();
-  } catch (err) { toast(err.message, "error"); }
+  } catch (err) { toast(errorMessage(err), "error"); }
 }
 
 // ── Utilities ──

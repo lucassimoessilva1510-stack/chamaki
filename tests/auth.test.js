@@ -84,3 +84,22 @@ test('ticket dates use Convex creation time and malformed sessions are ignored',
   assert.equal(f.run('tickets[0].createdTime'), 12345);
   assert.equal(f.run('loadSession()'), null);
 });
+
+test('both portals display the public Convex error without request IDs or stack traces', async () => {
+  for (const [handler, emailId, passId, errorId] of [
+    ['handleLoginCli', 'cEmail', 'cPass', 'cAuthError'],
+    ['handleLoginTec', 'tEmail', 'tPass', 'tAuthError'],
+  ]) {
+    const error = Object.assign(new Error('[CONVEX M(auth:login)] [Request ID: test] Server Error'), { data: 'E-mail nao cadastrado.' });
+    const f = frontend(async () => { throw error; });
+    f.node(emailId).value = 'missing@example.com'; f.node(passId).value = 'secret';
+    await f.run(handler + '()');
+    assert.equal(f.node(errorId).textContent, error.data);
+  }
+});
+test('unexpected Convex server errors do not expose technical details', () => {
+  const f = frontend(async () => {});
+  const result = f.run('errorMessage(new Error("[CONVEX M(auth:login)] Server Error"))');
+  assert.doesNotMatch(result, /CONVEX|Server Error/);
+  assert.match(result, /Tente novamente/);
+});
