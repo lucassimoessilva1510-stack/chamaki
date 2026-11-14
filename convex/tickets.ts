@@ -56,6 +56,7 @@ export const create = mutation({
     category: v.string(),
     priority: v.string(),
     description: v.optional(v.string()),
+    photo: v.optional(v.string()),
     authorName: v.string(),
     authorEmail: v.string(),
   },
@@ -73,6 +74,7 @@ export const create = mutation({
         time: now,
         message: `Chamado registrado por ${args.authorName}${args.description ? " — " + args.description : ""}.`,
         type: "file",
+        photo: args.photo,
       },
     ];
 
@@ -85,6 +87,7 @@ export const create = mutation({
       authorName: args.authorName,
       authorEmail: args.authorEmail,
       assigneeName: undefined,
+      photo: args.photo,
       timeline,
     });
 
@@ -103,7 +106,7 @@ export const assume = mutation({
       .query("tickets")
       .withIndex("by_ticketId", (q) => q.eq("ticketId", args.ticketId))
       .first();
-    if (!ticket) throw new Error("Chamado nao encontrado");
+    if (!ticket) throw new Error("Chamado não encontrado");
 
     const now = new Date().toLocaleString("pt-BR", {
       day: "2-digit",
@@ -135,7 +138,7 @@ export const resolve = mutation({
       .query("tickets")
       .withIndex("by_ticketId", (q) => q.eq("ticketId", args.ticketId))
       .first();
-    if (!ticket) throw new Error("Chamado nao encontrado");
+    if (!ticket) throw new Error("Chamado não encontrado");
 
     const now = new Date().toLocaleString("pt-BR", {
       day: "2-digit",
@@ -164,13 +167,14 @@ export const addReply = mutation({
     ticketId: v.string(),
     authorName: v.string(),
     message: v.string(),
+    photo: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
     const ticket = await ctx.db
       .query("tickets")
       .withIndex("by_ticketId", (q) => q.eq("ticketId", args.ticketId))
       .first();
-    if (!ticket) throw new Error("Chamado nao encontrado");
+    if (!ticket) throw new Error("Chamado não encontrado");
 
     const now = new Date().toLocaleString("pt-BR", {
       day: "2-digit",
@@ -186,8 +190,37 @@ export const addReply = mutation({
           time: now,
           message: `${args.authorName}: ${args.message}`,
           type: "msg",
+          photo: args.photo,
         },
       ],
     });
+  },
+});
+
+// Delete ticket
+export const remove = mutation({
+  args: { ticketId: v.string() },
+  handler: async (ctx, args) => {
+    const ticket = await ctx.db
+      .query("tickets")
+      .withIndex("by_ticketId", (q) => q.eq("ticketId", args.ticketId))
+      .first();
+    if (!ticket) throw new Error("Chamado não encontrado para exclusão.");
+
+    await ctx.db.delete(ticket._id);
+    return { success: true, ticketId: args.ticketId };
+  },
+});
+
+// Stats query
+export const stats = query({
+  args: {},
+  handler: async (ctx) => {
+    const tickets = await ctx.db.query("tickets").collect();
+    const total = tickets.length;
+    const open = tickets.filter((t) => t.status === "Aberto").length;
+    const inProgress = tickets.filter((t) => t.status === "Em Atendimento").length;
+    const resolved = tickets.filter((t) => t.status === "Resolvido").length;
+    return { total, open, inProgress, resolved };
   },
 });

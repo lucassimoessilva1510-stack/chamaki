@@ -4,6 +4,8 @@
 
 [build.environment]
   NODE_VERSION = "20"
+  VITE_CONVEX_URL = "https://laudable-mink-785.convex.cloud"
+  VITE_CONVEX_SITE_URL = "https://laudable-mink-785.convex.site"
 
 [[redirects]]
   from = "/*"

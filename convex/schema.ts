@@ -9,6 +9,7 @@ export default defineSchema({
     type: v.union(v.literal("cli"), v.literal("tec")),
     dept: v.optional(v.string()),
     cargo: v.optional(v.string()),
+    avatar: v.optional(v.string()),
   }).index("by_email", ["email"]),
 
   tickets: defineTable({
@@ -20,11 +21,13 @@ export default defineSchema({
     authorName: v.string(),
     authorEmail: v.string(),
     assigneeName: v.optional(v.string()),
+    photo: v.optional(v.string()),
     timeline: v.array(
       v.object({
         time: v.string(),
         message: v.string(),
         type: v.string(),
+        photo: v.optional(v.string()),
       })
     ),
   })
