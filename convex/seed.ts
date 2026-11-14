@@ -27,7 +27,7 @@ export const seedData = mutation({
       { name: "Maria Eduarda F. da F. Silva", email: "maria@empresa.com", dept: "TI", cargo: "Scrum Master" },
       { name: "Matheus Polini", email: "matheus@empresa.com", dept: "TI", cargo: "Desenvolvedor / DBA" },
     ];
-    const defaultHash = await hashPassword("123");
+    const defaultHash = await hashPassword("123456");
 
     for (const t of techs) {
       await ctx.db.insert("users", { ...t, passwordHash: defaultHash, type: "tec" as const, avatar: "" });

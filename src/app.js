@@ -6,6 +6,7 @@
 
 import { ConvexClient } from "convex/browser";
 import { api } from "../convex/_generated/api.js";
+import logoDark from "./logo_dark.png";
 
 const CONVEX_URL = import.meta.env.VITE_CONVEX_URL || "https://laudable-mink-785.convex.cloud";
 let convex = null;
@@ -22,11 +23,12 @@ let currentUser = null;
 let tickets = [];
 let currentPage = "";
 let selectedTicketId = null;
-let syncInterval = null;
 let convexUnsub = null;
-let isUsingLocalServer = true;
+
 let currentUploadedPhoto = null;
 let currentReplyPhoto = null;
+
+
 
 // ── Icons ──
 function icon(id, w) {
@@ -66,37 +68,35 @@ window.openLightbox = openLightbox;
 
 // ── Session ──
 function saveSession() {
-  if (currentUser) localStorage.setItem("chamaki_user", JSON.stringify(currentUser));
-  else localStorage.removeItem("chamaki_user");
+  try {
+    if (currentUser) localStorage.setItem("chamaki_user", JSON.stringify(currentUser));
+    else localStorage.removeItem("chamaki_user");
+  } catch { toast("O navegador bloqueou o armazenamento da sessao.", "error"); }
 }
 function loadSession() {
   try {
     const s = localStorage.getItem("chamaki_user");
-    return s ? JSON.parse(s) : null;
+    const user = s ? JSON.parse(s) : null;
+    return user && typeof user.name === "string" && typeof user.email === "string" && ["cli", "tec"].includes(user.type) ? user : null;
   } catch { return null; }
 }
 
 // ── Real-Time Sync ──
+function updateTickets(data) {
+  if (!Array.isArray(data)) throw new Error("Resposta de chamados invalida.");
+  const next = data.map(t => ({ ...t, createdTime: t.createdTime || t._creationTime }));
+  if (JSON.stringify(next) === JSON.stringify(tickets)) return;
+  tickets = next;
+  if (currentUser && !document.getElementById("appShell").classList.contains("hide")) render();
+}
+
 async function syncTickets() {
   try {
-    const res = await fetch("/api/tickets");
-    if (!res.ok) throw new Error("Server error");
-    const data = await res.json();
-    isUsingLocalServer = true;
-
-    if (JSON.stringify(data) !== JSON.stringify(tickets)) {
-      tickets = data;
-      localStorage.setItem("chamaki_tickets_cache", JSON.stringify(tickets));
-      if (currentUser && !document.getElementById("appShell").classList.contains("hide")) {
-        render();
-      }
-    }
-  } catch (e) {
-    isUsingLocalServer = false;
-    const cached = localStorage.getItem("chamaki_tickets_cache");
-    if (cached) {
-      tickets = JSON.parse(cached);
-    }
+    if (!convex) throw new Error("Conexao com o banco indisponivel. Verifique VITE_CONVEX_URL.");
+    updateTickets(await convex.query(api.tickets.list, {}));
+  } catch (err) {
+    console.error("Falha ao sincronizar chamados:", err);
+    toast("Nao foi possivel atualizar os chamados. Tente novamente.", "error");
   }
 }
 
@@ -108,17 +108,10 @@ function startSync() {
       convexUnsub = convex.onUpdate(
         api.tickets.list,
         {},
-        (data) => {
-          if (Array.isArray(data)) {
-            tickets = data;
-            localStorage.setItem("chamaki_tickets_cache", JSON.stringify(tickets));
-            if (currentUser && !document.getElementById("appShell").classList.contains("hide")) {
-              render();
-            }
-          }
-        },
+        (data) => updateTickets(data),
         (err) => {
           console.warn("Convex live sync notice:", err);
+          toast("Nao foi possivel sincronizar os chamados.", "error");
         }
       );
     } catch (e) {
@@ -126,10 +119,7 @@ function startSync() {
     }
   }
 
-  // Also sync locally as backup
-  syncTickets();
-  if (syncInterval) clearInterval(syncInterval);
-  syncInterval = setInterval(syncTickets, 3000);
+  // The Convex subscription supplies the initial snapshot and subsequent updates.
 }
 
 // ══════════════════════════════════════════════
@@ -142,7 +132,7 @@ function renderLanding() {
     <div class="landing-page animate-fade">
       <div class="landing-header">
         <div class="landing-logo">
-          <img src="/src/logo_dark.png" alt="ChamaKi HelpDesk" class="landing-logo-img">
+          <img src="${logoDark}" alt="ChamaKi HelpDesk" class="landing-logo-img">
         </div>
         <div class="landing-subtitle">Sistema Enterprise de Help Desk e Gestão de Incidentes de TI</div>
       </div>
@@ -191,7 +181,7 @@ function renderAuthCli() {
     <div class="auth-screen">
     <div class="auth-container animate-fade">
       <div class="auth-header" style="justify-content:center;margin-bottom:8px">
-        <img src="/src/logo_dark.png" alt="ChamaKi" class="auth-logo-img">
+        <img src="${logoDark}" alt="ChamaKi" class="auth-logo-img">
       </div>
       <div class="auth-desc">Portal do Colaborador</div>
       <div class="tab-bar">
@@ -231,7 +221,7 @@ function renderAuthTec() {
     <div class="auth-screen">
     <div class="auth-container animate-fade">
       <div class="auth-header" style="justify-content:center;margin-bottom:8px">
-        <img src="/src/logo_dark.png" alt="ChamaKi" class="auth-logo-img">
+        <img src="${logoDark}" alt="ChamaKi" class="auth-logo-img">
       </div>
       <div class="auth-desc">Portal do Técnico</div>
       <div class="tab-bar">
@@ -289,22 +279,16 @@ async function handleLoginCli() {
 
   try {
     let data = null;
+    if (!convex) throw new Error("Banco indisponivel. Verifique VITE_CONVEX_URL.");
     if (convex) {
       try {
         data = await convex.mutation(api.auth.login, { email, password });
       } catch (err) {
         console.warn("Convex login notice:", err);
+          throw err;
       }
     }
-    if (!data) {
-      const res = await fetch("/api/auth/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password })
-      });
-      data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Erro ao entrar.");
-    }
+
     if (data.type !== "cli") throw new Error("Este e-mail é de técnico. Use o Portal do Técnico.");
     currentUser = data;
     saveSession();
@@ -320,27 +304,22 @@ async function handleRegCli() {
   const password = document.getElementById("rp").value;
   const password2 = document.getElementById("rp2").value;
   if (!name || !email || !password) { showError("cAuthError", "Preencha todos os campos."); return; }
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { showError("cAuthError", "Informe um e-mail valido."); return; }
   if (password.length < 6) { showError("cAuthError", "Senha: mínimo 6 caracteres."); return; }
   if (password !== password2) { showError("cAuthError", "As senhas não conferem."); return; }
 
   try {
     let data = null;
+    if (!convex) throw new Error("Banco indisponivel. Verifique VITE_CONVEX_URL.");
     if (convex) {
       try {
         data = await convex.mutation(api.auth.register, { name, email, password, type: "cli" });
       } catch (err) {
         console.warn("Convex register notice:", err);
+          throw err;
       }
     }
-    if (!data) {
-      const res = await fetch("/api/auth/register", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, email, password, type: "cli" })
-      });
-      data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Erro ao criar conta.");
-    }
+
     currentUser = data;
     saveSession();
     toast("Conta criada com sucesso!", "success");
@@ -358,22 +337,16 @@ async function handleLoginTec() {
 
   try {
     let data = null;
+    if (!convex) throw new Error("Banco indisponivel. Verifique VITE_CONVEX_URL.");
     if (convex) {
       try {
         data = await convex.mutation(api.auth.login, { email, password });
       } catch (err) {
         console.warn("Convex login notice:", err);
+          throw err;
       }
     }
-    if (!data) {
-      const res = await fetch("/api/auth/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password })
-      });
-      data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Erro ao entrar.");
-    }
+
     if (data.type !== "tec") throw new Error("Acesso negado. Este e-mail não pertence a um técnico.");
     currentUser = data;
     saveSession();
@@ -389,6 +362,7 @@ async function handleRegTec() {
   const password = document.getElementById("trp").value;
   const password2 = document.getElementById("trp2").value;
   if (!name || !email || !password) { showError("tAuthError", "Preencha todos os campos."); return; }
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { showError("tAuthError", "Informe um e-mail valido."); return; }
   if (password.length < 6) { showError("tAuthError", "Senha: mínimo 6 caracteres."); return; }
   if (password !== password2) { showError("tAuthError", "As senhas não conferem."); return; }
 
@@ -397,22 +371,16 @@ async function handleRegTec() {
 
   try {
     let data = null;
+    if (!convex) throw new Error("Banco indisponivel. Verifique VITE_CONVEX_URL.");
     if (convex) {
       try {
         data = await convex.mutation(api.auth.register, { name, email, password, type: "tec", dept, cargo });
       } catch (err) {
         console.warn("Convex register notice:", err);
+          throw err;
       }
     }
-    if (!data) {
-      const res = await fetch("/api/auth/register", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, email, password, type: "tec", dept, cargo })
-      });
-      data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Erro ao criar conta.");
-    }
+
     currentUser = data;
     saveSession();
     toast("Conta técnica criada com sucesso!", "success");
@@ -444,7 +412,7 @@ function buildNavbar() {
   nb.className = "navbar";
   nb.innerHTML = `
     <div class="navbar-brand">
-      <img src="/src/logo_dark.png" alt="ChamaKi" class="navbar-logo-img" onclick="goPage('${isCli ? "cdash" : "tdash"}')" style="cursor:pointer">
+      <img src="${logoDark}" alt="ChamaKi" class="navbar-logo-img" onclick="goPage('${isCli ? "cdash" : "tdash"}')" style="cursor:pointer">
       <span class="navbar-mode ${isCli ? "colab" : "tech"}">${isCli ? "Colaborador" : "Técnico"}</span>
       <span class="live-pill" title="Sincronização com outros computadores em tempo real"><span class="live-dot"></span> Ao vivo</span>
     </div>
@@ -490,7 +458,11 @@ function buildNavbar() {
 function logout() {
   currentUser = null;
   saveSession();
-  if (syncInterval) clearInterval(syncInterval);
+  if (convexUnsub) convexUnsub();
+  convexUnsub = null;
+  tickets = [];
+  selectedTicketId = null;
+  currentReplyPhoto = null;
   showScreen("landing");
   renderLanding();
 }
@@ -935,23 +907,16 @@ function bindPageEvents() {
       e.stopPropagation();
       const ticketId = el.dataset.assume;
       try {
-        let ok = false;
+                if (!convex) throw new Error("Banco indisponivel. Verifique VITE_CONVEX_URL.");
         if (convex) {
           try {
             await convex.mutation(api.tickets.assume, { ticketId, techName: currentUser.name });
-            ok = true;
           } catch (err) {
             console.warn("Convex assume notice:", err);
+          throw err;
           }
         }
-        if (!ok) {
-          const res = await fetch("/api/tickets/assume", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ ticketId, techName: currentUser.name })
-          });
-          if (!res.ok) throw new Error("Erro ao assumir chamado");
-        }
+
         toast(`Chamado ${ticketId} assumido!`, "success");
         syncTickets();
       } catch (err) { toast(err.message, "error"); }
@@ -964,23 +929,16 @@ function bindPageEvents() {
       e.stopPropagation();
       const ticketId = el.dataset.resolve;
       try {
-        let ok = false;
+                if (!convex) throw new Error("Banco indisponivel. Verifique VITE_CONVEX_URL.");
         if (convex) {
           try {
             await convex.mutation(api.tickets.resolve, { ticketId });
-            ok = true;
           } catch (err) {
             console.warn("Convex resolve notice:", err);
+          throw err;
           }
         }
-        if (!ok) {
-          const res = await fetch("/api/tickets/resolve", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ ticketId })
-          });
-          if (!res.ok) throw new Error("Erro ao resolver chamado");
-        }
+
         toast(`Chamado ${ticketId} resolvido com sucesso!`, "success");
         syncTickets();
       } catch (err) { toast(err.message, "error"); }
@@ -995,7 +953,7 @@ function bindPageEvents() {
       const msg = document.getElementById("replyMsg")?.value?.trim();
       if (!msg) { toast("Escreva uma mensagem de atualização.", "error"); return; }
       try {
-        let ok = false;
+                if (!convex) throw new Error("Banco indisponivel. Verifique VITE_CONVEX_URL.");
         if (convex) {
           try {
             await convex.mutation(api.tickets.addReply, {
@@ -1004,24 +962,12 @@ function bindPageEvents() {
               message: msg,
               photo: currentReplyPhoto || undefined
             });
-            ok = true;
           } catch (err) {
             console.warn("Convex reply notice:", err);
+          throw err;
           }
         }
-        if (!ok) {
-          const res = await fetch("/api/tickets/reply", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              ticketId,
-              authorName: currentUser.name,
-              message: msg,
-              photo: currentReplyPhoto
-            })
-          });
-          if (!res.ok) throw new Error("Erro ao enviar resposta");
-        }
+
         toast("Resposta enviada!", "success");
         currentReplyPhoto = null;
         syncTickets();
@@ -1037,23 +983,16 @@ function bindPageEvents() {
       if (!confirm(`Tem certeza que deseja excluir permanentemente o chamado ${ticketId}?`)) return;
 
       try {
-        let ok = false;
+                if (!convex) throw new Error("Banco indisponivel. Verifique VITE_CONVEX_URL.");
         if (convex) {
           try {
             await convex.mutation(api.tickets.remove, { ticketId });
-            ok = true;
           } catch (err) {
             console.warn("Convex delete notice:", err);
+          throw err;
           }
         }
-        if (!ok) {
-          const res = await fetch("/api/tickets/delete", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ ticketId })
-          });
-          if (!res.ok) throw new Error("Erro ao excluir chamado");
-        }
+
         toast(`Chamado ${ticketId} excluído com sucesso!`, "success");
         
         // If we were inside the detail page of that ticket, go back
@@ -1146,23 +1085,16 @@ async function uploadProfilePhoto(input) {
   reader.onload = async (e) => {
     const base64 = e.target.result;
     try {
-      let ok = false;
+            if (!convex) throw new Error("Banco indisponivel. Verifique VITE_CONVEX_URL.");
       if (convex) {
         try {
           await convex.mutation(api.auth.updateProfile, { email: currentUser.email, avatar: base64 });
-          ok = true;
         } catch (err) {
           console.warn("Convex update profile photo notice:", err);
+          throw err;
         }
       }
-      if (!ok) {
-        const res = await fetch("/api/auth/profile", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email: currentUser.email, avatar: base64 })
-        });
-        if (!res.ok) throw new Error("Erro ao atualizar foto");
-      }
+
       currentUser.avatar = base64;
       saveSession();
       toast("Foto de perfil atualizada!", "success");
@@ -1181,6 +1113,7 @@ async function createTicket() {
 
   try {
     let ticketId = null;
+    if (!convex) throw new Error("Banco indisponivel. Verifique VITE_CONVEX_URL.");
     if (convex) {
       try {
         ticketId = await convex.mutation(api.tickets.create, {
@@ -1194,26 +1127,10 @@ async function createTicket() {
         });
       } catch (err) {
         console.warn("Convex create ticket notice:", err);
+          throw err;
       }
     }
-    if (!ticketId) {
-      const res = await fetch("/api/tickets", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          title,
-          category,
-          priority,
-          description,
-          photo: currentUploadedPhoto,
-          authorName: currentUser.name,
-          authorEmail: currentUser.email
-        })
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Erro ao registrar chamado");
-      ticketId = data.ticketId;
-    }
+
 
     closeModal();
     document.getElementById("nT").value = "";
@@ -1235,6 +1152,7 @@ async function saveProfile() {
 
   try {
     let data = null;
+    if (!convex) throw new Error("Banco indisponivel. Verifique VITE_CONVEX_URL.");
     if (convex) {
       try {
         data = await convex.mutation(api.auth.updateProfile, {
@@ -1245,17 +1163,10 @@ async function saveProfile() {
         });
       } catch (err) {
         console.warn("Convex save profile notice:", err);
+          throw err;
       }
     }
-    if (!data) {
-      const res = await fetch("/api/auth/profile", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: currentUser.email, name, dept, cargo })
-      });
-      data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Erro ao atualizar");
-    }
+
     currentUser = { ...currentUser, ...data };
     saveSession();
     toast("Perfil atualizado com sucesso!", "success");
@@ -1327,7 +1238,6 @@ function init() {
   } else {
     showScreen("landing");
   }
-  startSync();
 }
 
 window.addEventListener("DOMContentLoaded", init);

@@ -1,5 +1,5 @@
 import { query, mutation } from "./_generated/server";
-import { v } from "convex/values";
+import { v, ConvexError } from "convex/values";
 
 async function hashPassword(password: string): Promise<string> {
   const encoder = new TextEncoder();
@@ -22,15 +22,18 @@ export const register = mutation({
   },
   handler: async (ctx, args) => {
     const emailNorm = args.email.trim().toLowerCase();
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailNorm)) throw new ConvexError("Informe um e-mail valido.");
     const existing = await ctx.db
       .query("users")
       .withIndex("by_email", (q) => q.eq("email", emailNorm))
       .first();
 
     if (existing) {
-      throw new Error("E-mail já cadastrado.");
+      throw new ConvexError("E-mail já cadastrado.");
     }
 
+    if (!args.name.trim()) throw new ConvexError("Informe seu nome.");
+    if (args.password.length < 6) throw new ConvexError("Senha: minimo 6 caracteres.");
     const passwordHash = await hashPassword(args.password);
 
     const userId = await ctx.db.insert("users", {
@@ -69,20 +72,14 @@ export const login = mutation({
       .first();
 
     if (!user) {
-      throw new Error("E-mail não cadastrado.");
+      throw new ConvexError("E-mail não cadastrado.");
     }
 
     const passwordHash = await hashPassword(args.password);
-    const hash123 = await hashPassword("123");
-    const isMatch =
-      user.passwordHash === passwordHash ||
-      user.passwordHash === args.password ||
-      (args.password === "123" && user.passwordHash === hash123) ||
-      args.password === "123" ||
-      args.password === "123456";
+    const isMatch = user.passwordHash === passwordHash;
 
     if (!isMatch) {
-      throw new Error("Senha incorreta.");
+      throw new ConvexError("Senha incorreta.");
     }
 
     return {
@@ -113,7 +110,7 @@ export const updateProfile = mutation({
       .withIndex("by_email", (q) => q.eq("email", emailNorm))
       .first();
 
-    if (!user) throw new Error("Usuário não encontrado.");
+    if (!user) throw new ConvexError("Usuário não encontrado.");
 
     const updates: any = {};
     if (args.name !== undefined) updates.name = args.name;
@@ -122,7 +119,8 @@ export const updateProfile = mutation({
     if (args.avatar !== undefined) updates.avatar = args.avatar;
 
     await ctx.db.patch(user._id, updates);
-    return { ...user, ...updates };
+    const { passwordHash: _passwordHash, ...profile } = { ...user, ...updates };
+    return profile;
   },
 });
 

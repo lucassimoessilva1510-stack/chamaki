@@ -123,3 +123,11 @@ chamaki/
 ├── vite.config.js
 └── netlify.toml      # Configuracao do Netlify
 ```
+
+## Correcao de autenticacao e publicacao
+
+O frontend usa exclusivamente o Convex. O Netlify hospeda arquivos estaticos; nao executa `server.py` nem implementa rotas `/api`. Erros de credenciais sao exibidos diretamente, sem tentar outra API.
+
+Antes de republicar o frontend, publique as funcoes atualizadas no mesmo deployment indicado por `VITE_CONVEX_URL`. Para producao, configure `CONVEX_DEPLOY_KEY` no Netlify e use como comando de build `npx convex deploy --cmd "npm run build"`. A chave deve pertencer ao deployment correto; nao coloque chaves em variaveis `VITE_`.
+
+Validacao local: `npm test` e `npm run build`. Dados novos de exemplo usam `123456`. Contas existentes continuam usando sua senha real, inclusive `123` se foi assim que foram criadas; nao ha mais senha universal.
