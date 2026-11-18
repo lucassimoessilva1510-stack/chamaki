@@ -1,5 +1,5 @@
 import { query, mutation } from "./_generated/server";
-import { v } from "convex/values";
+import { ConvexError, v } from "convex/values";
 
 // List all tickets (real-time subscription)
 export const list = query({
@@ -166,15 +166,23 @@ export const addReply = mutation({
   args: {
     ticketId: v.string(),
     authorName: v.string(),
+    authorType: v.optional(v.union(v.literal("cli"), v.literal("tec"))),
     message: v.string(),
     photo: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
+    const message = args.message.trim();
+    if (!message || message.length > 4000) {
+      throw new ConvexError("Escreva uma mensagem de até 4.000 caracteres.");
+    }
     const ticket = await ctx.db
       .query("tickets")
       .withIndex("by_ticketId", (q) => q.eq("ticketId", args.ticketId))
       .first();
-    if (!ticket) throw new Error("Chamado não encontrado");
+    if (!ticket) throw new ConvexError("Chamado não encontrado.");
+    if (ticket.status === "Resolvido") {
+      throw new ConvexError("Este chamado já foi resolvido.");
+    }
 
     const now = new Date().toLocaleString("pt-BR", {
       day: "2-digit",
@@ -188,8 +196,9 @@ export const addReply = mutation({
         ...ticket.timeline,
         {
           time: now,
-          message: `${args.authorName}: ${args.message}`,
+          message: `${args.authorName}: ${message}`,
           type: "msg",
+          authorType: args.authorType,
           photo: args.photo,
         },
       ],

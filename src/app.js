@@ -86,6 +86,18 @@ function updateTickets(data) {
   if (!Array.isArray(data)) throw new Error("Resposta de chamados invalida.");
   const next = data.map(t => ({ ...t, createdTime: t.createdTime || t._creationTime }));
   if (JSON.stringify(next) === JSON.stringify(tickets)) return;
+  if (currentUser) {
+    for (const ticket of next) {
+      const previous = tickets.find(item => item.ticketId === ticket.ticketId);
+      const isTechnician = currentUser.type === "tec";
+      if (!previous || (!isTechnician && ticket.authorEmail !== currentUser.email)) continue;
+      const incomingType = isTechnician ? "cli" : "tec";
+      if (ticketReplies(ticket).slice(ticketReplies(previous).length)
+        .some(reply => (reply.authorType || "tec") === incomingType)) {
+        toast(`Nova resposta no chamado ${ticket.ticketId}.`, "info");
+      }
+    }
+  }
   tickets = next;
   if (currentUser && !document.getElementById("appShell").classList.contains("hide")) render();
 }
@@ -488,7 +500,17 @@ function render() {
     cdash: rCDash, ctickets: rCTickets, ckb: rKB, cpro: rPro, cdet: rCDet,
     tdash: rTDash, tall: rTAll, tmanage: rTManage, tkb: rKB, tpro: rPro, tdet: rTDet,
   };
+  const replyForm = mc.querySelector("#replyForm");
+  const replyInput = replyForm?.querySelector("textarea");
+  const restoreFocus = replyInput && document.activeElement === replyInput;
   mc.innerHTML = (pages[currentPage] || rCDash)();
+  const nextReplyForm = mc.querySelector("#replyForm");
+  if (replyForm && nextReplyForm && replyForm.dataset.ticket === nextReplyForm.dataset.ticket) {
+    nextReplyForm.replaceWith(replyForm);
+    if (restoreFocus) replyInput.focus({ preventScroll: true });
+  } else {
+    currentReplyPhoto = null;
+  }
   buildNavbar();
   bindPageEvents();
 }
@@ -496,6 +518,33 @@ function render() {
 // ══════════════════════════════════════════════
 // COLABORADOR PAGES
 // ══════════════════════════════════════════════
+function escapeHTML(value) {
+  return String(value ?? "").replace(/[&<>"']/g, char => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[char]));
+}
+
+function ticketReplies(ticket) {
+  return (ticket.timeline || []).filter(entry => entry.type === "msg");
+}
+
+function replyPreview(ticket) {
+  const replies = ticketReplies(ticket);
+  if (!replies.length) return '<div class="reply-preview muted">Nenhuma mensagem na conversa</div>';
+  const last = replies[replies.length - 1];
+  return `<div class="reply-preview"><strong>Última mensagem</strong><span>${escapeHTML(last.message)}</span></div>`;
+}
+
+function repliesHTML(ticket) {
+  const replies = ticketReplies(ticket);
+  return `<section class="data-card ticket-conversation" aria-labelledby="conversationTitle" aria-live="polite">
+    <h3 id="conversationTitle">${icon("i-msg", 18)} Conversa do chamado</h3>
+    ${replies.length ? replies.map(reply => `<article class="conversation-message ${reply.authorType === "cli" ? "from-collaborator" : ""}">
+      <div class="timeline-time"><strong>${reply.authorType === "cli" ? "Colaborador" : "Equipe de TI"}</strong> · ${escapeHTML(reply.time)}</div>
+      <p>${escapeHTML(reply.message)}</p>
+      ${reply.photo && /^data:image\/(png|jpeg|jpg|gif|webp);base64,[a-z0-9+/=]+$/i.test(reply.photo) ? `<button type="button" class="conversation-attachment" data-reply-photo="${escapeHTML(reply.photo)}"><img src="${escapeHTML(reply.photo)}" class="timeline-attached-img" alt="Ampliar imagem anexada"></button>` : ""}
+    </article>`).join("") : '<p class="reply-empty">Ainda não há mensagens. Use a conversa para trocar informações sobre o chamado.</p>'}
+  </section>`;
+}
+
 function rCDash() {
   const my = tickets.filter((t) => t.authorEmail === currentUser.email);
   const op = my.filter((t) => t.status === "Aberto").length;
@@ -524,11 +573,13 @@ function rCDash() {
               <td><span class="ticket-id">${t.ticketId}</span></td>
               <td>
                 ${t.photo ? `<img src="${t.photo}" class="table-photo-thumb" onclick="event.stopPropagation();openLightbox('${t.photo}')" title="Ver foto em tela cheia">` : ''}
-                ${t.title}
+                ${escapeHTML(t.title)}
+                ${replyPreview(t)}
               </td>
               <td><span class="status-badge ${statusClass(t.status)}">${t.status}</span></td>
               <td class="sla-text">${calcSLA(t.createdTime)}</td>
               <td>
+                <button class="btn btn-sm btn-outline" data-view="${t.ticketId}">${icon("i-msg", 13)} Ver conversa</button>
                 <button class="btn btn-sm btn-delete" data-delete="${t.ticketId}" title="Excluir chamado">${icon("i-trash", 13)} Excluir</button>
               </td>
             </tr>
@@ -560,7 +611,8 @@ function rCTickets() {
               <td><span class="ticket-id">${t.ticketId}</span></td>
               <td>
                 ${t.photo ? `<img src="${t.photo}" class="table-photo-thumb" onclick="event.stopPropagation();openLightbox('${t.photo}')" title="Ver foto anexada">` : ''}
-                ${t.title}
+                ${escapeHTML(t.title)}
+                ${replyPreview(t)}
               </td>
               <td><span class="cat-tag">${t.category}</span></td>
               <td>${prioH(t.priority)}</td>
@@ -568,6 +620,7 @@ function rCTickets() {
               <td><span class="status-badge ${statusClass(t.status)}">${t.status}</span></td>
               <td class="sla-text">${calcSLA(t.createdTime)}</td>
               <td>
+                <button class="btn btn-sm btn-outline" data-view="${t.ticketId}">${icon("i-msg", 13)} Ver conversa</button>
                 <button class="btn btn-sm btn-delete" data-delete="${t.ticketId}" title="Excluir">${icon("i-trash", 13)}</button>
               </td>
             </tr>
@@ -578,7 +631,7 @@ function rCTickets() {
 }
 
 function rCDet() {
-  const t = tickets.find((x) => x.ticketId === selectedTicketId);
+  const t = tickets.find((x) => x.ticketId === selectedTicketId && x.authorEmail === currentUser.email);
   if (!t) return `<p>Chamado não encontrado.</p>`;
   return detailHTML(t, "ctickets", false);
 }
@@ -787,12 +840,12 @@ function detailHTML(t, back, isTec) {
       <div class="data-card" style="padding:22px">
         <h3 style="font-size:14px;font-weight:700;margin-bottom:18px;color:#fff">Histórico e Andamento</h3>
         <div class="timeline-container">
-          ${(t.timeline || []).map((e) => `
+          ${(t.timeline || []).filter(e => e.type !== "msg").map((e) => `
             <div class="timeline-entry">
               <div class="timeline-dot ${colorMap[e.type] || "default"}">${icon(iconMap[e.type] || "i-msg", 14)}</div>
               <div class="timeline-body">
                 <div class="timeline-time">${e.time}</div>
-                <div class="timeline-message">${e.message}</div>
+                <div class="timeline-message">${escapeHTML(e.message)}</div>
                 ${e.photo ? `<img src="${e.photo}" class="timeline-attached-img" onclick="openLightbox('${e.photo}')" title="Clique para ampliar">` : ''}
               </div>
             </div>
@@ -800,17 +853,18 @@ function detailHTML(t, back, isTec) {
         </div>
       </div>
 
-      ${isTec && t.status !== "Resolvido" ? `
-      <div class="reply-section">
-        <h3>Adicionar resposta técnica</h3>
+      ${repliesHTML(t)}
+      ${t.status !== "Resolvido" ? `
+      <form id="replyForm" class="reply-section" data-ticket="${t.ticketId}">
         <div class="form-group">
-          <textarea id="replyMsg" rows="3" placeholder="Escreva uma mensagem de atualização ou instruções para o solicitante..."></textarea>
+          <label for="replyMsg">Sua mensagem</label>
+          <textarea id="replyMsg" rows="3" required maxlength="4000" placeholder="Escreva uma mensagem..."></textarea>
         </div>
         
         <div style="margin-bottom:12px">
           <label style="font-size:11px;color:var(--text2);cursor:pointer;display:inline-flex;align-items:center;gap:6px">
             ${icon("i-camera", 16)} <span id="replyPhotoLabel">Anexar print na resposta</span>
-            <input type="file" id="replyPhotoFile" accept="image/*" style="display:none" onchange="window.app.handleReplyPhoto(this)">
+            <input type="file" id="replyPhotoFile" accept="image/png,image/jpeg,image/gif,image/webp" style="display:none" onchange="window.app.handleReplyPhoto(this)">
           </label>
           <div id="replyPreviewBox" class="hide" style="margin-top:6px;display:inline-flex;align-items:center;gap:8px">
             <img id="replyPreviewImg" style="width:40px;height:40px;border-radius:4px;object-fit:cover;border:1px solid var(--orange)">
@@ -819,11 +873,14 @@ function detailHTML(t, back, isTec) {
         </div>
 
         <div class="reply-actions">
-          ${t.status === "Aberto" ? `<button class="btn btn-sm btn-accent" data-assume="${t.ticketId}">Assumir chamado</button>` : ""}
-          <button class="btn btn-sm btn-outline" data-reply="${t.ticketId}">Enviar resposta</button>
-          <button class="btn btn-sm btn-success" data-resolve="${t.ticketId}">Resolver chamado</button>
+          <button type="submit" class="btn btn-sm btn-accent">Enviar mensagem</button>
         </div>
-      </div>` : ""}
+      </form>` : '<p class="reply-empty">A conversa foi encerrada porque o chamado foi resolvido.</p>'}
+      ${isTec && t.status !== "Resolvido" ? `
+        <div class="reply-actions">
+          ${t.status === "Aberto" ? `<button class="btn btn-sm btn-outline" data-assume="${t.ticketId}">Assumir chamado</button>` : ""}
+          <button class="btn btn-sm btn-success" data-resolve="${t.ticketId}">Resolver chamado</button>
+        </div>` : ""}
     </div>`;
 }
 
@@ -954,34 +1011,46 @@ function bindPageEvents() {
   });
 
   // Reply
-  document.querySelectorAll("[data-reply]").forEach((el) => {
-    el.onclick = async (e) => {
-      e.stopPropagation();
-      const ticketId = el.dataset.reply;
-      const msg = document.getElementById("replyMsg")?.value?.trim();
-      if (!msg) { toast("Escreva uma mensagem de atualização.", "error"); return; }
-      try {
-                if (!convex) throw new Error("Banco indisponivel. Verifique VITE_CONVEX_URL.");
-        if (convex) {
-          try {
-            await convex.mutation(api.tickets.addReply, {
-              ticketId,
-              authorName: currentUser.name,
-              message: msg,
-              photo: currentReplyPhoto || undefined
-            });
-          } catch (err) {
-            console.warn("Convex reply notice:", err);
-          throw err;
-          }
-        }
-
-        toast("Resposta enviada!", "success");
-        currentReplyPhoto = null;
-        syncTickets();
-      } catch (err) { toast(errorMessage(err), "error"); }
-    };
+  document.querySelectorAll("[data-reply-photo]").forEach(button => {
+    button.onclick = () => openLightbox(button.dataset.replyPhoto);
   });
+  const replyForm = document.getElementById("replyForm");
+  if (replyForm) {
+    replyForm.onsubmit = async (event) => {
+      event.preventDefault();
+      const submit = replyForm.querySelector('[type="submit"]');
+      const input = replyForm.querySelector("textarea");
+      const message = input.value.trim();
+      if (submit.disabled) return;
+      if (!message) { toast("Escreva uma mensagem.", "error"); return; }
+      submit.disabled = true;
+      input.readOnly = true;
+      const photoInput = replyForm.querySelector("#replyPhotoFile");
+      photoInput.disabled = true;
+      try {
+        if (!convex) throw new Error("Banco indisponivel. Verifique VITE_CONVEX_URL.");
+        await convex.mutation(api.tickets.addReply, {
+          ticketId: replyForm.dataset.ticket,
+          authorName: currentUser.name,
+          authorType: currentUser.type,
+          message,
+          photo: currentReplyPhoto || undefined,
+        });
+        if (replyForm.isConnected) {
+          input.value = "";
+          photoInput.disabled = false;
+          clearReplyPhoto();
+        }
+        toast("Mensagem enviada!", "success");
+      } catch (err) {
+        toast(errorMessage(err), "error");
+      } finally {
+        submit.disabled = false;
+        input.readOnly = false;
+        photoInput.disabled = false;
+      }
+    };
+  }
 
   // Delete ticket (Excluir chamado)
   document.querySelectorAll("[data-delete]").forEach((el) => {
@@ -1068,20 +1137,38 @@ function removePhoto() {
 function handleReplyPhoto(input) {
   if (!input.files || !input.files[0]) return;
   const file = input.files[0];
+  if (!["image/png", "image/jpeg", "image/gif", "image/webp"].includes(file.type) || file.size > 500_000) {
+    clearReplyPhoto();
+    toast("Selecione uma imagem PNG, JPEG, GIF ou WebP de até 500 KB.", "error");
+    return;
+  }
   const reader = new FileReader();
+  const submit = input.form.querySelector('[type="submit"]');
+  submit.disabled = true;
   reader.onload = (e) => {
+    if (!input.isConnected || input.files[0] !== file) return;
     currentReplyPhoto = e.target.result;
     document.getElementById("replyPreviewImg").src = currentReplyPhoto;
     document.getElementById("replyPreviewBox").classList.remove("hide");
     document.getElementById("replyPhotoLabel").textContent = "Foto anexada!";
   };
+  reader.onerror = () => {
+    if (!input.isConnected || input.files[0] !== file) return;
+    clearReplyPhoto();
+    toast("Não foi possível ler a imagem.", "error");
+  };
+  reader.onloadend = () => {
+    if (input.isConnected && input.files[0] === file) submit.disabled = false;
+  };
   reader.readAsDataURL(file);
 }
 
 function clearReplyPhoto() {
-  currentReplyPhoto = null;
   const input = document.getElementById("replyPhotoFile");
-  if (input) input.value = "";
+  if (!input || input.disabled) return;
+  currentReplyPhoto = null;
+  input.value = "";
+  input.form.querySelector('[type="submit"]').disabled = false;
   document.getElementById("replyPreviewBox").classList.add("hide");
   document.getElementById("replyPhotoLabel").textContent = "Anexar print na resposta";
 }

@@ -103,3 +103,47 @@ test('unexpected Convex server errors do not expose technical details', () => {
   assert.doesNotMatch(result, /CONVEX|Server Error/);
   assert.match(result, /Tente novamente/);
 });
+
+test('both portals show the ticket conversation and escape multiline messages', () => {
+  const f = frontend(async () => {});
+  f.run(`currentUser = {name:'Ana',email:'ana@example.com',type:'cli'};
+    tickets = [{ticketId:'CHK-001',authorEmail:'ana@example.com',title:'Impressora',timeline:[
+      {type:'file',message:'Abertura',time:'10:00'},
+      {type:'msg',message:'Tecnico: Reinicie o computador.\\n<img src=x onerror=alert(1)>',time:'10:15'},
+      {type:'msg',authorType:'cli',message:'Ana: O problema continua.',time:'10:30'}
+    ]}]; selectedTicketId='CHK-001';`);
+  for (const detail of [f.run('rCDet()'), f.run('rTDet()')]) {
+    assert.match(detail, /Conversa do chamado/);
+    assert.match(detail, /Tecnico: Reinicie o computador/);
+    assert.match(detail, /Ana: O problema continua/);
+    assert.match(detail, /&lt;img/);
+    assert.doesNotMatch(detail, /<img src=x/);
+    assert.match(detail, /Enviar mensagem/);
+  }
+  assert.match(f.run('rCTickets()'), /Ver conversa/);
+  assert.match(f.run('rCDash()'), /O problema continua/);
+  f.run('tickets[0].status = "Resolvido"');
+  assert.match(f.run('rCDet()'), /O problema continua/);
+  assert.doesNotMatch(f.run('rCDet()'), /Enviar mensagem/);
+});
+test('collaborator detail does not render another authors ticket', () => {
+  const f = frontend(async () => {});
+  f.run(`currentUser={email:'ana@example.com',type:'cli'}; selectedTicketId='CHK-002';
+    tickets=[{ticketId:'CHK-002',authorEmail:'other@example.com',timeline:[{type:'msg',message:'Private reply'}]}];`);
+  assert.doesNotMatch(f.run('rCDet()'), /Private reply/);
+});
+test('live update notifies the author of a new reply without notifying on initial load', () => {
+  const f = frontend(async () => {});
+  f.run(`currentUser={email:'ana@example.com',type:'cli'};
+    updateTickets([{ticketId:'CHK-001',authorEmail:'ana@example.com',timeline:[]}]);`);
+  assert.equal(f.node('toast').textContent, undefined);
+  f.run(`updateTickets([{...tickets[0],timeline:[{type:'msg',authorType:'cli',message:'Mensagem própria'}]}]);`);
+  assert.equal(f.node('toast').textContent, undefined);
+  f.run(`updateTickets([{...tickets[0],timeline:[...tickets[0].timeline,{type:'msg',message:'Resposta antiga da TI'}]}]);`);
+  assert.match(f.node('toast').textContent, /Nova resposta/);
+  f.node('toast').textContent = '';
+  f.run(`currentUser={email:'ti@example.com',type:'tec'};
+    updateTickets([{...tickets[0],timeline:[...tickets[0].timeline,{type:'msg',authorType:'cli',message:'Réplica'}]}]);`);
+  assert.match(f.node('toast').textContent, /Nova resposta/);
+  assert.equal(f.run('ticketReplies(tickets[0]).length'), 3);
+});

@@ -27,6 +27,7 @@ export default defineSchema({
         time: v.string(),
         message: v.string(),
         type: v.string(),
+        authorType: v.optional(v.union(v.literal("cli"), v.literal("tec"))),
         photo: v.optional(v.string()),
       })
     ),
