@@ -12,7 +12,8 @@ if not os.path.exists(logo_path):
 with open(logo_path, "rb") as f:
     logo_b64 = base64.b64encode(f.read()).decode("utf-8")
 
-qr_url = "https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=https://github.com/lucassimoessilva1510-stack/chamaki"
+# Fetch QR code pointing directly to the live site: https://chamaki.netlify.app/
+qr_url = "https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=https://chamaki.netlify.app/"
 req = urllib.request.Request(qr_url, headers={"User-Agent": "Mozilla/5.0"})
 try:
     with urllib.request.urlopen(req) as resp:
@@ -50,7 +51,7 @@ html_content = f'''<!DOCTYPE html>
 
   body {{
     font-family: 'Montserrat', 'Plus Jakarta Sans', sans-serif;
-    background: #1e2430;
+    background: #141824;
     color: #f1f5f9;
     display: flex;
     flex-direction: column;
@@ -64,16 +65,16 @@ html_content = f'''<!DOCTYPE html>
     position: sticky;
     top: 12px;
     z-index: 1000;
-    background: rgba(15, 23, 42, 0.92);
-    backdrop-filter: blur(12px);
-    border: 1px solid rgba(255, 107, 53, 0.35);
-    padding: 10px 22px;
+    background: rgba(15, 23, 42, 0.94);
+    backdrop-filter: blur(14px);
+    border: 1px solid rgba(255, 107, 53, 0.4);
+    padding: 10px 24px;
     border-radius: 40px;
     display: flex;
     align-items: center;
     gap: 16px;
     margin-bottom: 20px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
   }}
   .toolbar span {{
     font-size: 13px;
@@ -84,7 +85,7 @@ html_content = f'''<!DOCTYPE html>
     background: linear-gradient(135deg, #ff6b35, #ea580c);
     color: #fff;
     border: none;
-    padding: 8px 18px;
+    padding: 8px 20px;
     border-radius: 20px;
     font-size: 13px;
     font-weight: 700;
@@ -92,12 +93,12 @@ html_content = f'''<!DOCTYPE html>
     display: flex;
     align-items: center;
     gap: 6px;
-    box-shadow: 0 4px 14px rgba(255, 107, 53, 0.35);
+    box-shadow: 0 4px 14px rgba(255, 107, 53, 0.4);
     transition: all 0.2s;
   }}
   .toolbar .btn:hover {{
     transform: translateY(-1px);
-    box-shadow: 0 6px 20px rgba(255, 107, 53, 0.5);
+    box-shadow: 0 6px 20px rgba(255, 107, 53, 0.6);
   }}
   .toolbar .btn-sec {{
     background: rgba(255, 255, 255, 0.08);
@@ -115,23 +116,23 @@ html_content = f'''<!DOCTYPE html>
     min-height: 1440px;
     background: #090d16;
     background-image: 
-      radial-gradient(circle at 10% 15%, rgba(255, 107, 53, 0.12) 0%, transparent 40%),
-      radial-gradient(circle at 90% 85%, rgba(234, 88, 12, 0.1) 0%, transparent 45%),
-      radial-gradient(circle at 50% 50%, rgba(30, 41, 59, 0.4) 0%, transparent 80%);
-    border: 2px solid rgba(255, 107, 53, 0.3);
+      radial-gradient(circle at 10% 12%, rgba(255, 107, 53, 0.14) 0%, transparent 40%),
+      radial-gradient(circle at 90% 88%, rgba(234, 88, 12, 0.12) 0%, transparent 45%),
+      radial-gradient(circle at 50% 50%, rgba(30, 41, 59, 0.45) 0%, transparent 80%);
+    border: 2px solid rgba(255, 107, 53, 0.35);
     border-radius: 12px;
     overflow: hidden;
     position: relative;
-    box-shadow: 0 25px 70px rgba(0,0,0,0.6);
+    box-shadow: 0 25px 70px rgba(0,0,0,0.65);
     display: flex;
     flex-direction: column;
   }}
 
   /* CABEÇALHO SUPERIOR (TOPO) */
   .banner-header {{
-    background: linear-gradient(135deg, #0f172a 0%, #1e1b2e 50%, #170d10 100%);
+    background: linear-gradient(135deg, #0b1120 0%, #171626 50%, #150d11 100%);
     border-bottom: 4px solid #ff6b35;
-    padding: 30px 40px 22px 40px;
+    padding: 26px 40px 22px 40px;
     position: relative;
   }}
   .banner-header::after {{
@@ -141,45 +142,31 @@ html_content = f'''<!DOCTYPE html>
     left: 0;
     right: 0;
     height: 4px;
-    background: linear-gradient(90deg, #ea580c, #ff6b35, #f59e0b, #ff6b35);
+    background: linear-gradient(90deg, #ea580c, #ff6b35, #fbbf24, #ff6b35);
   }}
 
   .header-top-row {{
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 18px;
-    padding-bottom: 14px;
+    margin-bottom: 16px;
+    padding-bottom: 12px;
     border-bottom: 1px solid rgba(255,255,255,0.08);
   }}
-  .univ-brand {{
-    display: flex;
-    align-items: center;
-    gap: 14px;
-  }}
-  .univ-logo-badge {{
-    background: #fff;
-    color: #0f172a;
-    font-weight: 900;
-    font-size: 15px;
-    padding: 6px 14px;
-    border-radius: 8px;
-    letter-spacing: 0.5px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-  }}
-  .univ-text {{
+  .univ-info-bar {{
     font-size: 13px;
     font-weight: 700;
     color: #e2e8f0;
-    line-height: 1.3;
+    letter-spacing: 0.6px;
     text-transform: uppercase;
-    letter-spacing: 0.8px;
   }}
-  .univ-text span {{
-    font-size: 11px;
+  .univ-info-bar .campus-name {{
+    color: #ff8c42;
+    font-weight: 800;
+  }}
+  .univ-info-bar .course-name {{
     color: #94a3b8;
-    font-weight: 500;
-    display: block;
+    font-weight: 600;
   }}
 
   .event-badge {{
@@ -203,78 +190,40 @@ html_content = f'''<!DOCTYPE html>
     box-shadow: 0 0 8px #ff6b35;
   }}
 
-  .header-main {{
+  /* HERO DA LOGO CENTRAL (SÓ A LOGO DO PROJETO COMO SOLICITADO) */
+  .header-hero-logo {{
     display: flex;
+    flex-direction: column;
     align-items: center;
-    justify-content: space-between;
-    gap: 24px;
-    margin-bottom: 18px;
-  }}
-  .logo-box {{
-    flex-shrink: 0;
-  }}
-  .logo-box img {{
-    height: 82px;
-    object-fit: contain;
-    filter: drop-shadow(0 4px 12px rgba(255,107,53,0.3));
-  }}
-
-  .title-box {{
-    flex: 1;
+    justify-content: center;
     text-align: center;
+    padding: 10px 0 16px 0;
   }}
-  .main-title {{
-    font-size: 34px;
-    font-weight: 900;
-    color: #ffffff;
-    line-height: 1.15;
-    letter-spacing: -0.5px;
-    text-transform: uppercase;
-  }}
-  .main-title span {{
-    color: #ff6b35;
-    background: linear-gradient(90deg, #ff6b35, #fb923c);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
+  .hero-logo-img {{
+    height: 105px;
+    max-width: 520px;
+    object-fit: contain;
+    filter: drop-shadow(0 6px 16px rgba(255,107,53,0.35));
+    transition: transform 0.3s;
   }}
   .main-subtitle {{
-    font-size: 16px;
+    font-size: 16.5px;
     font-weight: 600;
     color: #cbd5e1;
-    margin-top: 6px;
-    letter-spacing: 0.3px;
-  }}
-
-  .dept-box {{
-    flex-shrink: 0;
-    text-align: right;
-    background: rgba(255,255,255,0.04);
-    border: 1px solid rgba(255,255,255,0.08);
-    padding: 10px 18px;
-    border-radius: 12px;
-  }}
-  .dept-box .track {{
-    font-size: 13px;
-    font-weight: 800;
-    color: #ff8c42;
-    text-transform: uppercase;
+    margin-top: 10px;
     letter-spacing: 0.5px;
-  }}
-  .dept-box .code {{
-    font-size: 11px;
-    color: #94a3b8;
-    margin-top: 2px;
+    text-transform: uppercase;
   }}
 
   /* FAIXA DE AUTORIA */
   .authors-bar {{
-    background: rgba(0, 0, 0, 0.45);
+    background: rgba(0, 0, 0, 0.5);
     border-radius: 10px;
-    padding: 12px 20px;
+    padding: 12px 22px;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    border: 1px solid rgba(255, 107, 53, 0.2);
+    border: 1px solid rgba(255, 107, 53, 0.25);
     font-size: 12px;
   }}
   .authors-list {{
@@ -322,7 +271,7 @@ html_content = f'''<!DOCTYPE html>
 
   /* CARDS DE SEÇÃO */
   .sec-card {{
-    background: rgba(15, 23, 42, 0.7);
+    background: rgba(15, 23, 42, 0.72);
     border: 1px solid rgba(255, 255, 255, 0.08);
     border-radius: 12px;
     padding: 18px 20px;
@@ -332,7 +281,7 @@ html_content = f'''<!DOCTYPE html>
   }}
   .sec-card.highlight {{
     border-color: rgba(255, 107, 53, 0.4);
-    background: rgba(18, 22, 34, 0.85);
+    background: rgba(18, 22, 34, 0.88);
   }}
 
   .sec-header {{
@@ -667,8 +616,8 @@ html_content = f'''<!DOCTYPE html>
     align-items: center;
     gap: 14px;
     background: rgba(255,255,255,0.03);
-    border: 1px solid rgba(255, 107, 53, 0.3);
-    padding: 8px 16px;
+    border: 1px solid rgba(255, 107, 53, 0.35);
+    padding: 8px 18px;
     border-radius: 10px;
     flex-shrink: 0;
   }}
@@ -681,18 +630,18 @@ html_content = f'''<!DOCTYPE html>
     justify-content: center;
   }}
   .qr-img-box img {{
-    width: 68px;
-    height: 68px;
+    width: 72px;
+    height: 72px;
     display: block;
   }}
   .qr-info {{
-    font-size: 10px;
+    font-size: 10.5px;
     color: #cbd5e1;
-    line-height: 1.4;
+    line-height: 1.45;
   }}
   .qr-info strong {{
     color: #ff6b35;
-    font-size: 11px;
+    font-size: 11.5px;
     display: block;
   }}
 
@@ -734,34 +683,24 @@ html_content = f'''<!DOCTYPE html>
   <!-- CANVAS DO BANNER 90x120 CM -->
   <div class="banner-canvas">
 
-    <!-- CABEÇALHO -->
+    <!-- CABEÇALHO (APENAS A LOGO DO PROJETO EM DESTAQUE) -->
     <header class="banner-header">
       <div class="header-top-row">
-        <div class="univ-brand">
-          <div class="univ-logo-badge">SÃO JUDAS</div>
-          <div class="univ-text">
-            Universidade São Judas Tadeu
-            <span>Campus Mooca &bull; São Paulo/SP &bull; 2026.2</span>
-          </div>
+        <div class="univ-info-bar">
+          Universidade São Judas Tadeu &bull; 
+          <span class="campus-name">Campus Paulista</span> &bull; 
+          <span class="course-name">Engenharia de Software (GM11251)</span>
         </div>
         <div class="event-badge">
           <div class="pulse"></div>
-          Mostra Científica e Tecnológica &bull; Avaliação A3 &bull; Expo São Judas
+          Mostra Científica e Tecnológica &bull; Avaliação A3 &bull; Expo São Judas 2026.2
         </div>
       </div>
 
-      <div class="header-main">
-        <div class="logo-box">
-          <img src="data:image/png;base64,{logo_b64}" alt="ChamaKi HelpDesk">
-        </div>
-        <div class="title-box">
-          <h1 class="main-title">ChamaKi <span>Help Desk</span></h1>
-          <div class="main-subtitle">Sistema Enterprise de Gestão e Atendimento de Incidentes de TI</div>
-        </div>
-        <div class="dept-box">
-          <div class="track">Engenharia de Software</div>
-          <div class="code">UC Projeto e Eng. Software (GM11251)</div>
-        </div>
+      <!-- SÓ A LOGO OFICIAL DO PROJETO NO CABEÇALHO -->
+      <div class="header-hero-logo">
+        <img src="data:image/png;base64,{logo_b64}" alt="ChamaKi HelpDesk" class="hero-logo-img">
+        <div class="main-subtitle">Sistema Enterprise de Gestão e Atendimento de Incidentes de TI</div>
       </div>
 
       <div class="authors-bar">
@@ -773,8 +712,8 @@ html_content = f'''<!DOCTYPE html>
           <span class="advisor-tag">Orientador: Prof. Raulison Resende</span>
         </div>
         <div class="semester-tag">
-          Relatório Executivo &bull; Entrega Final<br>
-          30 de Novembro de 2026
+          Universidade São Judas Tadeu &bull; Campus Paulista<br>
+          Relatório Executivo Final &bull; 30/11/2026
         </div>
       </div>
     </header>
@@ -1139,7 +1078,7 @@ html_content = f'''<!DOCTYPE html>
 
     </main>
 
-    <!-- RODAPÉ TÉCNICO & QR CODE -->
+    <!-- RODAPÉ TÉCNICO & QR CODE DO SITE ONLINE -->
     <footer class="banner-footer">
       <div class="references-box">
         <strong>Referências Bibliográficas (Normas ABNT):</strong>
@@ -1150,12 +1089,13 @@ html_content = f'''<!DOCTYPE html>
 
       <div class="qr-section">
         <div class="qr-img-box">
-          <img src="data:image/png;base64,{qr_b64}" alt="QR Code GitHub">
+          <img src="data:image/png;base64,{qr_b64}" alt="QR Code ChamaKi Live App">
         </div>
         <div class="qr-info">
-          <strong>Acesse o Repositório &bull; GitHub</strong>
-          Código-fonte completo, documentação técnica,<br>
-          commits do squad e protótipo funcional.
+          <strong>Acesse o Sistema ao Vivo &bull; Web</strong>
+          <span style="color:#ff8c42;font-weight:800;font-size:11px">chamaki.netlify.app</span><br>
+          Escaneie com a câmera do celular para testar<br>
+          o protótipo funcional em tempo real na bancada!
         </div>
       </div>
     </footer>
@@ -1176,7 +1116,8 @@ with open(banner_workspace_path, "w", encoding="utf-8") as f:
 with open(banner_artifact_path, "w", encoding="utf-8") as f:
     f.write(html_content)
 
-print("Banner saved successfully to:")
-print(" -", banner_workspace_path)
-print(" -", banner_artifact_path)
-print("File size:", len(html_content), "bytes")
+print("Banner updated successfully!")
+print(" - QR Code encoded URL: https://chamaki.netlify.app/")
+print(" - Campus: Campus Paulista")
+print(" - Header logo: Only ChamaKi project logo")
+print(" - Files updated:", banner_workspace_path, "and", banner_artifact_path)
