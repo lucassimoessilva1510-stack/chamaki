@@ -35,9 +35,9 @@ html_content = f'''<!DOCTYPE html>
      DIRETRIZES TÉCNICAS OBRIGATÓRIAS DO GUIA OFICIAL (PROF. RAULISON RESENDE)
      • Dimensão Exata: 90 cm de largura x 120 cm de altura (Orientação Vertical / Retrato)
      • Tipografia: Montserrat (Fonte limpa e profissional)
-     • Título: 60 a 80 pt (Legível a 3 metros) -> Definido em 64 pt
-     • Títulos de Seções: 36 a 44 pt -> Definido em 38 pt
-     • Texto e Tópicos: 24 a 30 pt (NUNCA menor que 20 pt) -> Definido em 24 pt e 20 pt
+     • Título Principal: 60 a 80 pt (Legível a 3 metros) -> Definido em 60 pt
+     • Títulos de Seções: 36 a 44 pt -> Definido em 36 pt
+     • Texto e Tópicos: 24 a 30 pt (NUNCA menor que 20 pt) -> Definido em 22 pt e 20 pt
      • Proporção: 50% de recursos visuais e 50% de texto conciso em tópicos (bullet points)
      ══════════════════════════════════════════════════════════════════════ */
   @page {{
@@ -60,17 +60,14 @@ html_content = f'''<!DOCTYPE html>
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 20px 10px;
+    padding: 24px 10px 60px 10px;
     min-height: 100vh;
   }}
 
-  /* CONTROLE INTERATIVO SUPERIOR DE VISUALIZAÇÃO */
+  /* CONTROLE SUPERIOR DE VISUALIZAÇÃO (NÃO-FIXO PARA NÃO COBRIR O BANNER AO ROLAR) */
   .toolbar {{
-    position: sticky;
-    top: 10px;
-    z-index: 10000;
+    position: static;
     background: rgba(15, 23, 42, 0.95);
-    backdrop-filter: blur(12px);
     border: 2px solid #ff6b35;
     padding: 12px 28px;
     border-radius: 40px;
@@ -133,6 +130,7 @@ html_content = f'''<!DOCTYPE html>
     min-height: 1200mm;
     max-width: 900mm;
     max-height: 1200mm;
+    box-sizing: border-box;
     background: #090d16;
     background-image: 
       radial-gradient(circle at 8% 10%, rgba(255, 107, 53, 0.16) 0%, transparent 40%),
@@ -140,12 +138,12 @@ html_content = f'''<!DOCTYPE html>
       radial-gradient(circle at 50% 50%, rgba(30, 41, 59, 0.5) 0%, transparent 80%);
     border: 4mm solid #ff6b35;
     border-radius: 14px;
-    overflow: hidden;
     position: relative;
     box-shadow: 0 25px 80px rgba(0,0,0,0.7);
     display: flex;
     flex-direction: column;
     justify-content: space-between;
+    overflow: hidden;
   }}
 
   /* ══════════════════════════════════════════════════════════════════════
@@ -153,17 +151,18 @@ html_content = f'''<!DOCTYPE html>
      ══════════════════════════════════════════════════════════════════════ */
   .banner-header {{
     background: linear-gradient(135deg, #0b1120 0%, #161a29 50%, #180d12 100%);
-    border-bottom: 5mm solid #ff6b35;
-    padding: 18mm 25mm 14mm 25mm;
+    border-bottom: 4mm solid #ff6b35;
+    padding: 10mm 22mm 8mm 22mm;
     position: relative;
+    flex-shrink: 0;
   }}
   .banner-header::after {{
     content: '';
     position: absolute;
-    bottom: -5mm;
+    bottom: -4mm;
     left: 0;
     right: 0;
-    height: 5mm;
+    height: 4mm;
     background: linear-gradient(90deg, #ea580c, #ff6b35, #fbbf24, #ff6b35);
   }}
 
@@ -172,15 +171,15 @@ html_content = f'''<!DOCTYPE html>
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 12mm;
-    padding-bottom: 10mm;
+    margin-bottom: 8mm;
+    padding-bottom: 6mm;
     border-bottom: 1mm solid rgba(255, 255, 255, 0.12);
   }}
 
   .univ-brand-box {{
     display: flex;
     align-items: center;
-    gap: 16mm;
+    gap: 14mm;
   }}
   .univ-logo-svg {{
     display: flex;
@@ -190,11 +189,11 @@ html_content = f'''<!DOCTYPE html>
     line-height: 1.35;
   }}
   .univ-title {{
-    font-size: 26pt;
+    font-size: 25pt;
     font-weight: 900;
     color: #ffffff;
     text-transform: uppercase;
-    letter-spacing: 1.5pt;
+    letter-spacing: 1.2pt;
   }}
   .univ-meta {{
     font-size: 20pt;
@@ -206,11 +205,11 @@ html_content = f'''<!DOCTYPE html>
   .event-badge {{
     background: rgba(255, 107, 53, 0.18);
     border: 1mm solid rgba(255, 107, 53, 0.5);
-    padding: 6mm 16mm;
+    padding: 5mm 14mm;
     border-radius: 30mm;
     display: flex;
     align-items: center;
-    gap: 6mm;
+    gap: 5mm;
     font-size: 20pt;
     font-weight: 800;
     color: #ff8c42;
@@ -218,30 +217,30 @@ html_content = f'''<!DOCTYPE html>
     text-transform: uppercase;
   }}
   .event-badge .pulse {{
-    width: 6mm;
-    height: 6mm;
+    width: 5mm;
+    height: 5mm;
     background: #ff6b35;
     border-radius: 50%;
     box-shadow: 0 0 10mm #ff6b35;
   }}
 
-  /* LINHA 2 DO TOPO: LOGO DO PROJETO + TÍTULO COM DESTAQUE (64 PT) */
+  /* LINHA 2 DO TOPO: LOGO DO PROJETO + TÍTULO COM DESTAQUE (60 PT) */
   .header-main {{
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 18mm;
-    margin-bottom: 12mm;
+    gap: 16mm;
+    margin-bottom: 8mm;
   }}
   .logo-box {{
     flex-shrink: 0;
     background: rgba(255, 255, 255, 0.04);
     border: 1mm solid rgba(255, 107, 53, 0.35);
-    border-radius: 8mm;
-    padding: 4mm 10mm;
+    border-radius: 7mm;
+    padding: 3mm 8mm;
   }}
   .logo-box img {{
-    height: 38mm;
+    height: 32mm;
     object-fit: contain;
     filter: drop-shadow(0 4mm 12mm rgba(255,107,53,0.4));
   }}
@@ -251,7 +250,7 @@ html_content = f'''<!DOCTYPE html>
     text-align: center;
   }}
   .main-title {{
-    font-size: 64pt;
+    font-size: 60pt;
     font-weight: 900;
     color: #ffffff;
     line-height: 1.15;
@@ -266,10 +265,10 @@ html_content = f'''<!DOCTYPE html>
     -webkit-text-fill-color: transparent;
   }}
   .main-subtitle {{
-    font-size: 26pt;
+    font-size: 23pt;
     font-weight: 700;
     color: #cbd5e1;
-    margin-top: 3mm;
+    margin-top: 2mm;
     letter-spacing: 0.5pt;
   }}
 
@@ -278,11 +277,11 @@ html_content = f'''<!DOCTYPE html>
     text-align: right;
     background: rgba(255, 255, 255, 0.05);
     border: 1mm solid rgba(255, 255, 255, 0.12);
-    padding: 6mm 12mm;
+    padding: 5mm 10mm;
     border-radius: 6mm;
   }}
   .dept-badge .track {{
-    font-size: 22pt;
+    font-size: 21pt;
     font-weight: 800;
     color: #ff8c42;
     text-transform: uppercase;
@@ -298,16 +297,21 @@ html_content = f'''<!DOCTYPE html>
   .authors-bar {{
     background: rgba(0, 0, 0, 0.55);
     border-radius: 6mm;
-    padding: 8mm 16mm;
+    padding: 5mm 12mm;
     display: flex;
-    justify-content: space-between;
+    justify-content: center;
     align-items: center;
     border: 1mm solid rgba(255, 107, 53, 0.35);
-    font-size: 21pt;
-    line-height: 1.5;
+    font-size: 20.5pt;
+    line-height: 1.45;
+    text-align: center;
   }}
   .authors-left {{
+    width: 100%;
     color: #f1f5f9;
+  }}
+  .authors-team {{
+    margin-bottom: 2mm;
   }}
   .author-item {{
     font-weight: 800;
@@ -317,10 +321,9 @@ html_content = f'''<!DOCTYPE html>
     color: #ff8c42;
     font-weight: 700;
     font-size: 20pt;
-    margin-right: 6mm;
+    margin-right: 5mm;
   }}
   .faculty-team {{
-    margin-top: 2mm;
     font-size: 20pt;
     color: #e2e8f0;
   }}
@@ -331,42 +334,33 @@ html_content = f'''<!DOCTYPE html>
     color: #fbbf24;
   }}
 
-  .authors-right {{
-    text-align: right;
-    font-size: 20pt;
-    font-weight: 700;
-    color: #94a3b8;
-    line-height: 1.4;
-  }}
-  .authors-right .highlight {{
-    color: #34d399;
-  }}
-
   /* ══════════════════════════════════════════════════════════════════════
      CORPO PRINCIPAL (3 COLUNAS VERTICAIS DE 268mm)
      ══════════════════════════════════════════════════════════════════════ */
   .banner-body {{
     display: grid;
     grid-template-columns: 268mm 268mm 268mm;
-    gap: 23mm;
-    padding: 16mm 25mm;
+    gap: 18mm;
+    padding: 8mm 22mm;
     flex: 1;
+    box-sizing: border-box;
   }}
 
   .col {{
     display: flex;
     flex-direction: column;
-    gap: 16mm;
+    justify-content: space-between;
+    gap: 9mm;
   }}
 
   /* CARTÕES DE SEÇÃO ACADÊMICOS */
   .sec-card {{
     background: rgba(15, 23, 42, 0.78);
     border: 1mm solid rgba(255, 255, 255, 0.1);
-    border-radius: 8mm;
-    padding: 14mm 16mm;
+    border-radius: 7mm;
+    padding: 8mm 12mm;
     position: relative;
-    box-shadow: 0 4mm 18mm rgba(0,0,0,0.3);
+    box-shadow: 0 4mm 16mm rgba(0,0,0,0.3);
   }}
   .sec-card.highlight {{
     border-color: rgba(255, 107, 53, 0.5);
@@ -376,45 +370,45 @@ html_content = f'''<!DOCTYPE html>
   .sec-header {{
     display: flex;
     align-items: center;
-    gap: 6mm;
-    margin-bottom: 10mm;
-    padding-bottom: 5mm;
-    border-bottom: 2mm solid #ff6b35;
+    gap: 5mm;
+    margin-bottom: 6mm;
+    padding-bottom: 3mm;
+    border-bottom: 1.5mm solid #ff6b35;
   }}
   .sec-header .icon {{
-    font-size: 32pt;
+    font-size: 28pt;
   }}
   .sec-header h2 {{
-    font-size: 38pt;
+    font-size: 36pt;
     font-weight: 900;
     text-transform: uppercase;
-    letter-spacing: 0.8pt;
+    letter-spacing: 0.6pt;
     color: #ffffff;
   }}
 
   .p-text {{
-    font-size: 24pt;
-    line-height: 1.55;
+    font-size: 22pt;
+    line-height: 1.45;
     color: #e2e8f0;
-    margin-bottom: 8mm;
+    margin-bottom: 4mm;
   }}
   .bullet-list {{
     list-style: none;
   }}
   .bullet-list li {{
-    font-size: 23pt;
-    line-height: 1.55;
+    font-size: 21pt;
+    line-height: 1.42;
     color: #e2e8f0;
-    margin-bottom: 6mm;
+    margin-bottom: 3.5mm;
     position: relative;
-    padding-left: 14mm;
+    padding-left: 11mm;
   }}
   .bullet-list li::before {{
     content: '▶';
     position: absolute;
     left: 0;
     top: 0.5mm;
-    font-size: 18pt;
+    font-size: 16pt;
     color: #ff6b35;
   }}
   .bullet-list li strong {{
@@ -426,15 +420,15 @@ html_content = f'''<!DOCTYPE html>
   .arch-diagram {{
     display: flex;
     flex-direction: column;
-    gap: 6mm;
-    margin: 8mm 0;
+    gap: 4mm;
+    margin: 5mm 0;
   }}
   .arch-layer {{
     background: linear-gradient(135deg, rgba(30, 41, 59, 0.95), rgba(15, 23, 42, 0.95));
     border: 1mm solid rgba(255, 107, 53, 0.35);
     border-left: 5mm solid #ff6b35;
-    border-radius: 5mm;
-    padding: 8mm 10mm;
+    border-radius: 4mm;
+    padding: 5mm 8mm;
   }}
   .arch-layer.pres {{ border-left-color: #38bdf8; }}
   .arch-layer.bus  {{ border-left-color: #ff6b35; }}
@@ -444,229 +438,236 @@ html_content = f'''<!DOCTYPE html>
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 3mm;
+    margin-bottom: 2mm;
   }}
   .arch-layer-title {{
-    font-size: 23pt;
+    font-size: 22pt;
     font-weight: 800;
     color: #ffffff;
-    text-transform: uppercase;
   }}
   .arch-layer-tech {{
     font-size: 20pt;
-    font-weight: 800;
-    color: #fb923c;
-    background: rgba(255, 107, 53, 0.2);
-    padding: 2mm 8mm;
-    border-radius: 6mm;
+    font-weight: 700;
+    color: #ff8c42;
+    background: rgba(255, 107, 53, 0.15);
+    padding: 1.5mm 5mm;
+    border-radius: 3mm;
   }}
   .arch-layer-desc {{
-    font-size: 21pt;
+    font-size: 20pt;
     color: #cbd5e1;
-    line-height: 1.45;
-  }}
-  .arch-connector {{
-    text-align: center;
-    font-size: 22pt;
-    font-weight: 900;
-    color: #ff8c42;
-    line-height: 1;
+    line-height: 1.35;
   }}
 
-  /* TRADE-OFF ARQUITETURAL FUNDAMENTADO EM SOMMERVILLE */
+  .arch-connector {{
+    text-align: center;
+    font-size: 20pt;
+    font-weight: 800;
+    color: #fbbf24;
+    letter-spacing: 1pt;
+    padding: 1mm 0;
+  }}
+
+  /* TRADE-OFF ARQUITETURAL */
   .tradeoff-box {{
     background: rgba(0, 0, 0, 0.45);
+    border: 1mm solid rgba(255, 255, 255, 0.12);
     border-radius: 5mm;
-    padding: 8mm 10mm;
-    border: 1mm dashed rgba(255, 255, 255, 0.2);
-    margin-top: 6mm;
-    font-size: 21pt;
-    line-height: 1.5;
+    padding: 4mm 8mm;
+    margin-top: 4mm;
+    font-size: 20pt;
+    line-height: 1.4;
   }}
   .tradeoff-row {{
     display: flex;
     align-items: flex-start;
-    gap: 6mm;
-    margin-bottom: 4mm;
+    gap: 4mm;
+    margin-bottom: 2mm;
   }}
-  .tradeoff-row:last-child {{ margin-bottom: 0; }}
   .badge-pro {{
     background: rgba(16, 185, 129, 0.25);
     color: #34d399;
-    font-weight: 900;
-    font-size: 20pt;
-    padding: 2mm 8mm;
-    border-radius: 4mm;
+    border: 1px solid #10b981;
+    font-weight: 800;
+    font-size: 19pt;
+    padding: 1mm 4mm;
+    border-radius: 3mm;
     flex-shrink: 0;
   }}
   .badge-cost {{
-    background: rgba(239, 68, 68, 0.25);
-    color: #f87171;
-    font-weight: 900;
-    font-size: 20pt;
-    padding: 2mm 8mm;
-    border-radius: 4mm;
+    background: rgba(245, 158, 11, 0.25);
+    color: #fbbf24;
+    border: 1px solid #f59e0b;
+    font-weight: 800;
+    font-size: 19pt;
+    padding: 1mm 4mm;
+    border-radius: 3mm;
     flex-shrink: 0;
   }}
 
-  /* MODELAGEM UML */
+  /* DIAGRAMA UML MONOSPACED */
   .uml-box {{
-    background: #050811;
-    border: 1mm solid rgba(255, 255, 255, 0.15);
-    border-radius: 6mm;
-    padding: 8mm 10mm;
-    font-family: 'Courier New', Courier, monospace;
-    font-size: 19.5pt;
-    line-height: 1.4;
-    color: #38bdf8;
+    background: #020617;
+    border: 1mm solid rgba(56, 189, 248, 0.4);
+    border-radius: 4mm;
+    padding: 5mm 6mm;
+    font-family: 'Consolas', monospace;
+    font-size: 14pt;
+    line-height: 1.25;
+    color: #e2e8f0;
     white-space: pre;
     overflow-x: auto;
-    margin: 6mm 0;
+    margin: 3mm 0;
+    box-shadow: inset 0 2mm 8mm rgba(0,0,0,0.6);
   }}
-  .uml-box .uml-hl {{ color: #fb923c; font-weight: bold; }}
-  .uml-box .uml-kw {{ color: #a855f7; }}
+  .uml-kw {{ color: #fbbf24; font-weight: bold; }}
+  .uml-hl {{ color: #38bdf8; font-weight: bold; }}
 
-  /* SPRINTS E KANBAN */
-  .sprint-timeline {{
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 4mm;
-    margin: 8mm 0;
-  }}
-  .sprint-node {{
-    background: rgba(0, 0, 0, 0.45);
-    border: 1mm solid rgba(255, 107, 53, 0.3);
-    border-radius: 5mm;
-    padding: 6mm 4mm;
-    text-align: center;
-  }}
-  .sprint-node .sp-num {{
-    font-size: 23pt;
-    font-weight: 900;
-    color: #ff6b35;
-  }}
-  .sprint-node .sp-name {{
-    font-size: 20pt;
-    font-weight: 700;
-    color: #f1f5f9;
-    margin-top: 1mm;
-  }}
-  .sprint-node .sp-status {{
-    font-size: 20pt;
-    color: #34d399;
-    font-weight: 800;
-    margin-top: 1mm;
-  }}
-
-  /* GRID DE KPIS / INDICADORES FINAIS */
-  .kpi-grid {{
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 6mm;
-    margin: 8mm 0;
-  }}
-  .kpi-box {{
-    background: linear-gradient(135deg, rgba(255, 107, 53, 0.16), rgba(0,0,0,0.45));
-    border: 1mm solid rgba(255, 107, 53, 0.45);
-    border-radius: 6mm;
-    padding: 8mm 4mm;
-    text-align: center;
-  }}
-  .kpi-val {{
-    font-size: 44pt;
-    font-weight: 900;
-    color: #ffffff;
-    line-height: 1;
-    text-shadow: 0 2mm 8mm rgba(255,107,53,0.5);
-  }}
-  .kpi-val.highlight {{ color: #ff6b35; }}
-  .kpi-lbl {{
-    font-size: 20pt;
-    font-weight: 800;
-    color: #94a3b8;
-    text-transform: uppercase;
-    margin-top: 3mm;
-  }}
-
-  /* TABELAS DE DADOS (RNF E RISCOS) */
+  /* MATRIZ DE RISCO / TABELAS */
   .data-table {{
     width: 100%;
     border-collapse: collapse;
-    font-size: 21pt;
-    margin: 6mm 0;
+    margin-top: 3mm;
+    font-size: 20pt;
   }}
   .data-table th {{
-    background: rgba(255, 107, 53, 0.25);
+    background: rgba(255, 107, 53, 0.2);
     color: #ff8c42;
-    padding: 5mm 6mm;
     text-align: left;
+    padding: 3mm 5mm;
+    border-bottom: 1.5mm solid #ff6b35;
     font-weight: 800;
-    border-bottom: 1mm solid rgba(255, 107, 53, 0.5);
+    font-size: 20pt;
   }}
   .data-table td {{
-    padding: 5mm 6mm;
-    border-bottom: 1mm solid rgba(255, 255, 255, 0.08);
+    padding: 3mm 5mm;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
     color: #e2e8f0;
+    line-height: 1.35;
   }}
-  .data-table td.res {{
-    text-align: right;
-    font-weight: 800;
+  .data-table tr:last-child td {{
+    border-bottom: none;
+  }}
+  .data-table .res {{
     color: #34d399;
+    font-weight: 800;
+    text-align: right;
   }}
 
-  /* SHOWCASE DE TELAS DO SISTEMA */
+  /* TIMELINE SPRINT */
+  .sprint-timeline {{
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 3mm;
+    margin: 4mm 0;
+  }}
+  .sprint-node {{
+    background: rgba(255, 255, 255, 0.04);
+    border: 1mm solid rgba(255, 107, 53, 0.3);
+    border-radius: 4mm;
+    padding: 4mm 3mm;
+    text-align: center;
+  }}
+  .sprint-node .sp-num {{
+    font-size: 20pt;
+    font-weight: 800;
+    color: #ff8c42;
+  }}
+  .sprint-node .sp-name {{
+    font-size: 19pt;
+    color: #cbd5e1;
+    margin-top: 1mm;
+  }}
+  .sprint-node .sp-status {{
+    font-size: 19pt;
+    font-weight: 800;
+    color: #34d399;
+    margin-top: 1mm;
+  }}
+
+  /* KPI CARDS (COLUNA 3) */
+  .kpi-grid {{
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 3.5mm;
+    margin-bottom: 4mm;
+  }}
+  .kpi-box {{
+    background: rgba(255, 255, 255, 0.04);
+    border: 1mm solid rgba(255, 255, 255, 0.1);
+    border-radius: 4mm;
+    padding: 4mm 3mm;
+    text-align: center;
+  }}
+  .kpi-val {{
+    font-size: 32pt;
+    font-weight: 900;
+    color: #ffffff;
+    line-height: 1;
+  }}
+  .kpi-val.highlight {{
+    color: #ff6b35;
+  }}
+  .kpi-lbl {{
+    font-size: 19.5pt;
+    font-weight: 700;
+    color: #94a3b8;
+    margin-top: 2mm;
+    line-height: 1.25;
+  }}
+
+  /* MOCKUPS DE INTERFACE */
   .ui-showcase {{
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 6mm;
-    margin: 8mm 0;
+    gap: 4mm;
+    margin-top: 3mm;
   }}
   .ui-frame {{
-    background: #0f172a;
+    background: #0b0f19;
     border: 1mm solid rgba(255, 107, 53, 0.35);
-    border-radius: 6mm;
+    border-radius: 4mm;
     overflow: hidden;
-    box-shadow: 0 4mm 12mm rgba(0,0,0,0.4);
   }}
   .ui-frame-bar {{
     background: #1e293b;
-    padding: 4mm 6mm;
+    padding: 2mm 4mm;
     display: flex;
     align-items: center;
-    gap: 3mm;
-    font-size: 20pt;
-    font-weight: 800;
-    color: #cbd5e1;
-    border-bottom: 1mm solid rgba(255,255,255,0.1);
+    gap: 2mm;
+    font-size: 19pt;
+    font-weight: 700;
+    color: #94a3b8;
   }}
   .ui-dot {{
-    width: 4mm;
-    height: 4mm;
+    width: 3mm;
+    height: 3mm;
     border-radius: 50%;
+    display: inline-block;
   }}
   .ui-dot.r {{ background: #ef4444; }}
   .ui-dot.y {{ background: #f59e0b; }}
   .ui-dot.g {{ background: #10b981; }}
   .ui-content {{
-    padding: 6mm;
-    font-size: 20pt;
-    line-height: 1.45;
+    padding: 4mm;
+    font-size: 19.5pt;
+    line-height: 1.4;
   }}
   .ui-ticket-item {{
     background: rgba(255,255,255,0.04);
-    border-left: 3mm solid #ff6b35;
-    padding: 4mm 6mm;
-    margin-bottom: 3mm;
-    border-radius: 3mm;
+    border-left: 2.5mm solid #ff6b35;
+    padding: 2.5mm 4mm;
+    margin-bottom: 2mm;
+    border-radius: 2mm;
     display: flex;
     justify-content: space-between;
     align-items: center;
   }}
   .ui-badge-status {{
-    font-size: 19pt;
+    font-size: 18.5pt;
     font-weight: 800;
-    padding: 2mm 6mm;
-    border-radius: 8mm;
+    padding: 1.5mm 4mm;
+    border-radius: 6mm;
   }}
   .ui-badge-status.ab {{ background: rgba(239, 68, 68, 0.25); color: #f87171; }}
   .ui-badge-status.em {{ background: rgba(245, 158, 11, 0.25); color: #fbbf24; }}
@@ -677,59 +678,60 @@ html_content = f'''<!DOCTYPE html>
      ══════════════════════════════════════════════════════════════════════ */
   .banner-footer {{
     background: #080c14;
-    border-top: 4mm solid rgba(255, 107, 53, 0.4);
-    padding: 14mm 25mm;
+    border-top: 3.5mm solid rgba(255, 107, 53, 0.4);
+    padding: 8mm 22mm;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    gap: 16mm;
+    gap: 14mm;
+    flex-shrink: 0;
   }}
   .references-box {{
     flex: 1;
-    font-size: 20.5pt;
+    font-size: 19.5pt;
     color: #94a3b8;
-    line-height: 1.6;
+    line-height: 1.45;
   }}
   .references-box strong {{
     color: #ff8c42;
     text-transform: uppercase;
     letter-spacing: 0.5pt;
     display: block;
-    margin-bottom: 2mm;
-    font-size: 22pt;
+    margin-bottom: 1.5mm;
+    font-size: 21pt;
   }}
 
   .qr-section {{
     display: flex;
     align-items: center;
-    gap: 10mm;
+    gap: 8mm;
     background: rgba(255,255,255,0.04);
     border: 1mm solid rgba(255, 107, 53, 0.4);
-    padding: 6mm 14mm;
-    border-radius: 6mm;
+    padding: 4mm 10mm;
+    border-radius: 5mm;
     flex-shrink: 0;
   }}
   .qr-img-box {{
     background: #fff;
-    padding: 3mm;
-    border-radius: 4mm;
+    padding: 2.5mm;
+    border-radius: 3mm;
     display: flex;
     align-items: center;
     justify-content: center;
   }}
   .qr-img-box img {{
-    width: 32mm;
-    height: 32mm;
+    width: 28mm;
+    height: 28mm;
     display: block;
   }}
   .qr-info {{
-    font-size: 21pt;
+    font-size: 20pt;
     color: #cbd5e1;
-    line-height: 1.45;
+    line-height: 1.4;
   }}
   .qr-info strong {{
     color: #ff6b35;
-    font-size: 24pt;
+    font-size: 22pt;
     display: block;
   }}
 
@@ -751,6 +753,8 @@ html_content = f'''<!DOCTYPE html>
       height: 1200mm !important;
       min-width: 900mm !important;
       min-height: 1200mm !important;
+      max-width: 900mm !important;
+      max-height: 1200mm !important;
       border: none !important;
       border-radius: 0 !important;
       box-shadow: none !important;
@@ -762,15 +766,20 @@ html_content = f'''<!DOCTYPE html>
   function changeZoom(val) {{
     const wrapper = document.getElementById('scaleWrapper');
     if (val === 'fit') {{
-      const scale = (window.innerWidth - 60) / (900 * 3.7795);
-      wrapper.style.transform = 'scale(' + Math.min(scale, 1) + ')';
+      const scaleW = (window.innerWidth - 60) / (900 * 3.7795);
+      const scaleH = (window.innerHeight - 120) / (1200 * 3.7795);
+      const scale = Math.min(scaleW, scaleH);
+      wrapper.style.transform = 'scale(' + Math.min(Math.max(scale, 0.15), 1) + ')';
+    }} else if (val === 'fit-width') {{
+      const scaleW = (window.innerWidth - 60) / (900 * 3.7795);
+      wrapper.style.transform = 'scale(' + Math.min(scaleW, 1) + ')';
     }} else {{
       wrapper.style.transform = 'scale(' + val + ')';
     }}
   }}
   window.addEventListener('resize', () => {{
     const sel = document.getElementById('zoomSelect');
-    if (sel && sel.value === 'fit') changeZoom('fit');
+    if (sel && sel.value.startsWith('fit')) changeZoom(sel.value);
   }});
   window.addEventListener('DOMContentLoaded', () => {{
     changeZoom('fit');
@@ -779,12 +788,13 @@ html_content = f'''<!DOCTYPE html>
 </head>
 <body>
 
-  <!-- BARRA DE CONTROLE SUPERIOR -->
+  <!-- BARRA DE CONTROLE SUPERIOR (ESTÁTICA NO TOPO) -->
   <div class="toolbar">
     <span>📐 Padrão Oficial: <strong>90 cm x 120 cm</strong> (Expo São Judas A3)</span>
     <label for="zoomSelect" style="font-size:13px;font-weight:700">Zoom na Tela:</label>
     <select id="zoomSelect" class="zoom-select" onchange="changeZoom(this.value)">
-      <option value="fit" selected>Ajustar à Tela (Fit)</option>
+      <option value="fit" selected>Ajustar à Tela (100% Visível)</option>
+      <option value="fit-width">Ajustar à Largura</option>
       <option value="0.35">35%</option>
       <option value="0.5">50%</option>
       <option value="0.75">75%</option>
@@ -807,7 +817,7 @@ html_content = f'''<!DOCTYPE html>
           <div class="univ-brand-box">
             <!-- LOGOTIPO OFICIAL VETORIAL DA SÃO JUDAS TADEU -->
             <div class="univ-logo-svg">
-              <svg width="220" height="48" viewBox="0 0 146 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <svg width="200" height="42" viewBox="0 0 146 32" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M138.231 18.8938H136.411C136.116 18.8938 135.92 18.5494 136.067 18.3034L140.64 9.34851L136.018 0.590432C135.87 0.295216 136.067 0 136.362 0H138.182C139.853 0 140.984 0.688838 141.722 2.01731L146 9.39772L141.771 16.7781C141.033 18.0574 139.952 18.8938 138.231 18.8938Z" fill="#A9BE00"/>
                 <path d="M107.007 9.34863C105.827 9.34863 105.089 9.39784 104.499 9.49624C103.073 9.69305 101.992 12.3008 102.582 12.8912C102.778 12.9896 103.073 12.9896 103.516 12.8912C104.204 12.7436 105.483 12.5468 107.253 12.5468C109.761 12.5468 111.433 13.0388 111.433 15.3022V17.0735H107.499C103.073 17.0735 100.271 18.5003 100.271 22.5842C100.271 26.4712 102.877 28.1933 107.45 28.1933C112.711 28.1933 114.973 26.3728 114.973 22.3381V15.3514C115.022 10.7755 111.777 9.34863 107.007 9.34863ZM111.383 22.2397C111.383 24.6999 109.662 25.0935 107.4 25.0935C105.581 25.0935 103.909 24.7491 103.909 22.5842C103.909 20.7145 105.089 19.9764 107.499 19.9764H111.383V22.2397Z" fill="#ffffff"/>
                 <path d="M23.0702 9.29932C21.8901 9.29932 21.1525 9.34852 20.5624 9.44693C19.1364 9.64374 18.0547 12.2515 18.6447 12.8419C18.8414 12.9403 19.1364 12.9403 19.579 12.8419C20.2674 12.6943 21.5459 12.4975 23.3161 12.4975C25.8238 12.4975 27.4957 12.9895 27.4957 15.302V17.0733H23.6111C19.1856 17.0733 16.3828 18.5002 16.3828 22.584C16.3828 26.4711 18.9889 28.2424 23.5619 28.2424C28.8233 28.2424 31.0853 26.4219 31.0853 22.3872V15.302C31.0853 10.7262 27.8399 9.29932 23.0702 9.29932ZM27.4465 22.2396C27.4465 24.749 25.7255 25.0934 23.4636 25.0934C21.6442 25.0934 19.9724 24.749 19.9724 22.584C19.9724 20.7143 21.1525 19.9763 23.5619 19.9763H27.4465V22.2396Z" fill="#ffffff"/>
@@ -832,7 +842,7 @@ html_content = f'''<!DOCTYPE html>
           </div>
         </div>
 
-        <!-- LINHA 2: LOGO DO PROJETO + TÍTULO EM DESTAQUE (64 PT - GUIA OFICIAL) -->
+        <!-- LINHA 2: LOGO DO PROJETO + TÍTULO EM DESTAQUE (60 PT - GUIA OFICIAL) -->
         <div class="header-main">
           <div class="logo-box">
             <img src="data:image/png;base64,{logo_b64}" alt="ChamaKi HelpDesk">
@@ -850,7 +860,7 @@ html_content = f'''<!DOCTYPE html>
         <!-- LINHA 3: AUTORES + CORPO DOCENTE (ORIENTADOR, PROFESSOR E COORDENADORA) -->
         <div class="authors-bar">
           <div class="authors-left">
-            <div>
+            <div class="authors-team">
               <span class="author-item">Ícaro Rafael Borges</span> <span class="author-role">(Product Owner)</span> &bull;
               <span class="author-item">Maria Eduarda F. da Fonseca Silva</span> <span class="author-role">(Scrum Master)</span> &bull;
               <span class="author-item">Lucas Simões Silva</span> <span class="author-role">(Desenvolvedor)</span> &bull;
@@ -861,10 +871,6 @@ html_content = f'''<!DOCTYPE html>
               Professor: <strong>Prof. Fernando Mori</strong> &bull;
               Coordenadora do Curso: <strong class="coord">Prof.ª Me. Erica Oliveira Lopes Silva</strong>
             </div>
-          </div>
-          <div class="authors-right">
-            Universidade São Judas Tadeu &bull; Campus Paulista<br>
-            <span class="highlight">Relatório Executivo &bull; Entrega Final &bull; 30/11/2026</span>
           </div>
         </div>
 
@@ -902,10 +908,10 @@ html_content = f'''<!DOCTYPE html>
               <h2>Objetivos do Projeto</h2>
             </div>
             <p class="p-text"><strong>Objetivo Geral:</strong></p>
-            <p class="p-text" style="margin-top:-3mm">
+            <p class="p-text" style="margin-top:-2mm">
               Desenvolver e implantar um sistema web de Help Desk para <strong>centralizar o registro, atendimento e acompanhamento</strong> de incidentes com histórico auditável em tempo real.
             </p>
-            <p class="p-text" style="margin-top:4mm"><strong>Objetivos Específicos:</strong></p>
+            <p class="p-text" style="margin-top:2mm"><strong>Objetivos Específicos:</strong></p>
             <ul class="bullet-list">
               <li>Entregar os <strong>7 requisitos funcionais</strong> planejados no escopo do MVP.</li>
               <li>Implementar autenticação segregada para <strong>Colaborador e Analista de TI</strong>.</li>
@@ -945,7 +951,7 @@ html_content = f'''<!DOCTYPE html>
                 <div class="sp-status">✓ 100%</div>
               </div>
             </div>
-            <ul class="bullet-list" style="margin-top:6mm">
+            <ul class="bullet-list" style="margin-top:3mm">
               <li><strong>Git Flow com Revisão por Pares:</strong> Branches por tarefa e Pull Requests obrigatoriamente aprovados por outro integrante.</li>
               <li><strong>32 Tarefas no Kanban:</strong> 100% de conclusão dentro dos prazos estabelecidos.</li>
             </ul>
@@ -1094,7 +1100,7 @@ html_content = f'''<!DOCTYPE html>
               <span class="icon">🏆</span>
               <h2>Resultados & Demonstração Prática</h2>
             </div>
-            <p class="p-text" style="margin-bottom:4mm">
+            <p class="p-text" style="margin-bottom:3mm">
               Entrega de <strong>100% do escopo planejado</strong>, superando as metas de estabilidade e qualidade:
             </p>
 
@@ -1126,7 +1132,7 @@ html_content = f'''<!DOCTYPE html>
             </div>
 
             <!-- Tabela de Requisitos Não Funcionais (Métricas Verificáveis) -->
-            <p class="p-text" style="font-size:22pt;margin:6mm 0 2mm 0">
+            <p class="p-text" style="font-size:21pt;margin:3mm 0 2mm 0">
               <strong>Métricas Verificáveis dos RNF (Sommerville, 2019):</strong>
             </p>
             <table class="data-table">
@@ -1175,13 +1181,13 @@ html_content = f'''<!DOCTYPE html>
                   Portal do Colaborador
                 </div>
                 <div class="ui-content">
-                  <div style="font-weight:800;color:#ff8c42;margin-bottom:2mm">Novo Chamado</div>
-                  <div style="background:rgba(255,255,255,0.06);padding:3mm;border-radius:2mm;margin-bottom:2mm">
+                  <div style="font-weight:800;color:#ff8c42;margin-bottom:1.5mm">Novo Chamado</div>
+                  <div style="background:rgba(255,255,255,0.06);padding:2.5mm;border-radius:2mm;margin-bottom:1.5mm">
                     Monitor sem sinal — cabo HDMI
                   </div>
                   <div style="color:#94a3b8">📷 Anexo de foto/captura incluído</div>
-                  <div style="text-align:right;margin-top:3mm">
-                    <span style="background:#ff6b35;color:#fff;padding:2mm 5mm;border-radius:2mm;font-weight:900">ABRIR CHAMADO</span>
+                  <div style="text-align:right;margin-top:2mm">
+                    <span style="background:#ff6b35;color:#fff;padding:1.5mm 4mm;border-radius:2mm;font-weight:900">ABRIR CHAMADO</span>
                   </div>
                 </div>
               </div>
@@ -1204,7 +1210,7 @@ html_content = f'''<!DOCTYPE html>
                     <span>CHK-003 Monitor</span>
                     <span class="ui-badge-status res">Resolvido</span>
                   </div>
-                  <div style="color:#38bdf8;margin-top:3mm;font-weight:800">
+                  <div style="color:#38bdf8;margin-top:2mm;font-weight:800">
                     ⚡ Assumir &bull; Responder &bull; Excluir
                   </div>
                 </div>
@@ -1247,7 +1253,7 @@ html_content = f'''<!DOCTYPE html>
           </div>
           <div class="qr-info">
             <strong>Acesse o Sistema ao Vivo &bull; Web</strong>
-            <span style="color:#ff8c42;font-weight:900;font-size:22pt">chamaki.netlify.app</span><br>
+            <span style="color:#ff8c42;font-weight:900;font-size:21pt">chamaki.netlify.app</span><br>
             Escaneie com a câmera do celular para testar<br>
             o protótipo funcional em tempo real na bancada!
           </div>
@@ -1272,11 +1278,6 @@ with open(banner_artifact_path, "w", encoding="utf-8") as f:
     f.write(html_content)
 
 print("Banner generated successfully!")
-print(" - College logo added: Universidade São Judas Tadeu (official vector SVG)")
-print(" - Professor Fernando Mori added")
-print(" - Course Coordinator Erica Oliveira Lopes Silva added")
-print(" - Advisor Prof. Raulison Resende confirmed")
-print(" - Exact technical dimensions: 90 cm x 120 cm (900mm x 1200mm)")
-print(" - Typography: Title 64pt, Section Headers 38pt, Body/Bullets 24pt and 20pt (no font < 20pt)")
-print(" - QR Code encoded URL: https://chamaki.netlify.app/")
-print(" - Files updated:", banner_workspace_path, "and", banner_artifact_path)
+print(" - Removed redundant executive report block from header (Photo 1)")
+print(" - Fixed toolbar positioning to static so it never blocks content (Photo 2)")
+print(" - Perfectly scaled all 3 columns and cards so the entire banner (including Footer, References and QR Code) fits 100% inside the 1200mm boundary")
