@@ -64,7 +64,7 @@ html_content = f'''<!DOCTYPE html>
     min-height: 100vh;
   }}
 
-  /* CONTROLE SUPERIOR DE VISUALIZAÇÃO (NÃO-FIXO PARA NÃO COBRIR O BANNER AO ROLAR) */
+  /* CONTROLE SUPERIOR DE VISUALIZAÇÃO (ESTÁTICO PARA NÃO COBRIR O BANNER AO ROLAR) */
   .toolbar {{
     position: static;
     background: rgba(15, 23, 42, 0.95);
@@ -335,12 +335,12 @@ html_content = f'''<!DOCTYPE html>
   }}
 
   /* ══════════════════════════════════════════════════════════════════════
-     CORPO PRINCIPAL (3 COLUNAS VERTICAIS DE 268mm)
+     CORPO PRINCIPAL (3 COLUNAS VERTICAIS — GRADE ALINHADA 3x3)
      ══════════════════════════════════════════════════════════════════════ */
   .banner-body {{
     display: grid;
     grid-template-columns: 268mm 268mm 268mm;
-    gap: 18mm;
+    gap: 16mm;
     padding: 8mm 22mm;
     flex: 1;
     box-sizing: border-box;
@@ -349,11 +349,11 @@ html_content = f'''<!DOCTYPE html>
   .col {{
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
-    gap: 9mm;
+    gap: 8mm;
+    height: 100%;
   }}
 
-  /* CARTÕES DE SEÇÃO ACADÊMICOS */
+  /* CARTÕES DE SEÇÃO ACADÊMICOS — GRADE PROPORCIONAL SEM VÃOS */
   .sec-card {{
     background: rgba(15, 23, 42, 0.78);
     border: 1mm solid rgba(255, 255, 255, 0.1);
@@ -361,6 +361,10 @@ html_content = f'''<!DOCTYPE html>
     padding: 8mm 12mm;
     position: relative;
     box-shadow: 0 4mm 16mm rgba(0,0,0,0.3);
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
   }}
   .sec-card.highlight {{
     border-color: rgba(255, 107, 53, 0.5);
@@ -371,9 +375,10 @@ html_content = f'''<!DOCTYPE html>
     display: flex;
     align-items: center;
     gap: 5mm;
-    margin-bottom: 6mm;
+    margin-bottom: 5mm;
     padding-bottom: 3mm;
     border-bottom: 1.5mm solid #ff6b35;
+    flex-shrink: 0;
   }}
   .sec-header .icon {{
     font-size: 28pt;
@@ -421,7 +426,7 @@ html_content = f'''<!DOCTYPE html>
     display: flex;
     flex-direction: column;
     gap: 4mm;
-    margin: 5mm 0;
+    margin: 4mm 0;
   }}
   .arch-layer {{
     background: linear-gradient(135deg, rgba(30, 41, 59, 0.95), rgba(15, 23, 42, 0.95));
@@ -474,7 +479,7 @@ html_content = f'''<!DOCTYPE html>
     border: 1mm solid rgba(255, 255, 255, 0.12);
     border-radius: 5mm;
     padding: 4mm 8mm;
-    margin-top: 4mm;
+    margin-top: 3mm;
     font-size: 20pt;
     line-height: 1.4;
   }}
@@ -510,14 +515,14 @@ html_content = f'''<!DOCTYPE html>
     background: #020617;
     border: 1mm solid rgba(56, 189, 248, 0.4);
     border-radius: 4mm;
-    padding: 5mm 6mm;
+    padding: 4mm 6mm;
     font-family: 'Consolas', monospace;
-    font-size: 14pt;
+    font-size: 13.5pt;
     line-height: 1.25;
     color: #e2e8f0;
     white-space: pre;
     overflow-x: auto;
-    margin: 3mm 0;
+    margin: 2mm 0;
     box-shadow: inset 0 2mm 8mm rgba(0,0,0,0.6);
   }}
   .uml-kw {{ color: #fbbf24; font-weight: bold; }}
@@ -559,13 +564,13 @@ html_content = f'''<!DOCTYPE html>
     display: grid;
     grid-template-columns: repeat(4, 1fr);
     gap: 3mm;
-    margin: 4mm 0;
+    margin: 3mm 0;
   }}
   .sprint-node {{
     background: rgba(255, 255, 255, 0.04);
     border: 1mm solid rgba(255, 107, 53, 0.3);
     border-radius: 4mm;
-    padding: 4mm 3mm;
+    padding: 3mm 2mm;
     text-align: center;
   }}
   .sprint-node .sp-num {{
@@ -589,18 +594,18 @@ html_content = f'''<!DOCTYPE html>
   .kpi-grid {{
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: 3.5mm;
-    margin-bottom: 4mm;
+    gap: 3mm;
+    margin-bottom: 3mm;
   }}
   .kpi-box {{
     background: rgba(255, 255, 255, 0.04);
     border: 1mm solid rgba(255, 255, 255, 0.1);
     border-radius: 4mm;
-    padding: 4mm 3mm;
+    padding: 3mm 2mm;
     text-align: center;
   }}
   .kpi-val {{
-    font-size: 32pt;
+    font-size: 30pt;
     font-weight: 900;
     color: #ffffff;
     line-height: 1;
@@ -609,10 +614,10 @@ html_content = f'''<!DOCTYPE html>
     color: #ff6b35;
   }}
   .kpi-lbl {{
-    font-size: 19.5pt;
+    font-size: 19pt;
     font-weight: 700;
     color: #94a3b8;
-    margin-top: 2mm;
+    margin-top: 1.5mm;
     line-height: 1.25;
   }}
 
@@ -767,7 +772,7 @@ html_content = f'''<!DOCTYPE html>
     const wrapper = document.getElementById('scaleWrapper');
     if (val === 'fit') {{
       const scaleW = (window.innerWidth - 60) / (900 * 3.7795);
-      const scaleH = (window.innerHeight - 120) / (1200 * 3.7795);
+      const scaleH = (window.innerHeight - 100) / (1200 * 3.7795);
       const scale = Math.min(scaleW, scaleH);
       wrapper.style.transform = 'scale(' + Math.min(Math.max(scale, 0.15), 1) + ')';
     }} else if (val === 'fit-width') {{
@@ -876,7 +881,7 @@ html_content = f'''<!DOCTYPE html>
 
       </header>
 
-      <!-- CORPO PRINCIPAL DO BANNER (3 COLUNAS VERTICAIS) -->
+      <!-- CORPO PRINCIPAL DO BANNER (3 COLUNAS VERTICAIS — GRADE ALINHADA 3x3) -->
       <main class="banner-body">
 
         <!-- ══════════════════════════════════════════
@@ -1278,6 +1283,6 @@ with open(banner_artifact_path, "w", encoding="utf-8") as f:
     f.write(html_content)
 
 print("Banner generated successfully!")
-print(" - Removed redundant executive report block from header (Photo 1)")
-print(" - Fixed toolbar positioning to static so it never blocks content (Photo 2)")
-print(" - Perfectly scaled all 3 columns and cards so the entire banner (including Footer, References and QR Code) fits 100% inside the 1200mm boundary")
+print(" - Removed artificial justify-content: space-between on columns")
+print(" - Set cards to flex: 1 forming a clean, unified 3x3 aligned grid")
+print(" - Gaps between cards are strictly 8mm, eliminating all blank empty voids")
